@@ -1,12 +1,12 @@
 package ru.practicum.explore.with.me.stats.server.dto;
 
 import lombok.Builder;
-
-import java.net.URI;
+import lombok.Getter;
 
 @Builder
-public class StatsResponseDto {
+@Getter
+public class StatsShortDto {
     private String app;
-    private URI uri;
+    private String uri;
     private Long hits;
 }

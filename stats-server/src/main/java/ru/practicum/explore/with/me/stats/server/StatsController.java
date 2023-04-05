@@ -1,12 +1,12 @@
 package ru.practicum.explore.with.me.stats.server;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explore.with.me.stats.server.dto.StatsRequestDto;
-import ru.practicum.explore.with.me.stats.server.dto.StatsResponseDto;
+import ru.practicum.explore.with.me.stats.server.dto.StatsDto;
+import ru.practicum.explore.with.me.stats.server.dto.StatsShortDto;
 import ru.practicum.explore.with.me.stats.server.dto.StatsMapper;
 import ru.practicum.explore.with.me.stats.server.service.StatsService;
 
@@ -23,16 +23,16 @@ public class StatsController {
     /**
      * Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем.
      * Название сервиса, uri и ip пользователя указаны в теле запроса.
-     * @param statsRequestDto не может быть null.
+     * @param statsDto не может быть null.
      * @return сохраненную сущность; никогда не будет null.
      */
     @PostMapping("/hit")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Информация сохранена")
-    public StatsResponseDto postStats(@NonNull @RequestBody StatsRequestDto statsRequestDto) {
-        Stats statsFromDto = StatsMapper.toStats(statsRequestDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public StatsDto postStats(@NonNull @RequestBody StatsDto statsDto) {
+        Stats statsFromDto = StatsMapper.toStats(statsDto);
 
         Stats statsForDto = statsService.create(statsFromDto);
-        return StatsMapper.toStatsResponseDto(statsForDto);
+        return StatsMapper.toStatsDto(statsForDto);
     }
 
     /**
@@ -44,16 +44,13 @@ public class StatsController {
      * @return список статистики или пустой список.
      */
     @GetMapping("/stats")
-    @ResponseStatus(value = HttpStatus.OK, reason = "Статистика собрана")
-    public Collection<StatsResponseDto> getStats(@RequestParam @JsonFormat(shape = JsonFormat.Shape.STRING,
-                                                         pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                                 @RequestParam @JsonFormat(shape = JsonFormat.Shape.STRING,
-                                                         pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                                 @RequestParam Collection<URI> uris,
-                                                 @RequestParam(defaultValue = "false") Boolean unique) {
+    public Collection<StatsShortDto> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                              @RequestParam Collection<URI> uris,
+                                              @RequestParam(defaultValue = "false") Boolean unique) {
 
         return statsService.getStats(start, end, uris, unique).stream()
-                .map(StatsMapper::toStatsResponseDto)
+                .map(StatsMapper::toStatsShortDto)
                 .collect(Collectors.toList());
     }
 }

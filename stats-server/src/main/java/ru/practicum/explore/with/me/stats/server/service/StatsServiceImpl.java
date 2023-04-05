@@ -24,6 +24,7 @@ public class StatsServiceImpl implements StatsService {
         if (unique) {
             return statsRepository.findDistinctByUriInAndTimestampBetweenAndGroupByIp(uris, start, end);
         }
-        return statsRepository.findDistinctByUriInAndTimestampBetween(uris, start, end);
+        Collection<Stats> statsCollection = statsRepository.findDistinctByUriInAndTimestampBetween(uris, start, end);
+        return statsCollection;
     }
 }

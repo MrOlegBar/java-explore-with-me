@@ -17,15 +17,10 @@ import java.time.LocalDateTime;
 public class Stats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Long id;
-    @Column
     private String app;
-    @Column
     private URI uri;
-    @Column
     private String ip;
-    @Column
     @CreationTimestamp
     private LocalDateTime timestamp;
     private Long hits;
