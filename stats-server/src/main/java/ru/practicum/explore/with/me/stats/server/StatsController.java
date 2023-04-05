@@ -51,6 +51,6 @@ public class StatsController {
 
         return statsService.getStats(start, end, uris, unique).stream()
                 .map(StatsMapper::toStatsShortDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }
