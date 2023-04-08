@@ -1,12 +1,14 @@
 package ru.practicum.explore.with.me.stat.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Getter;
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -16,11 +18,10 @@ public class StatDto {
             "пустым символом.")
     private String app;
     @NotNull(message = "URI, для которого был осуществлен запрос, отсутствует.")
-    private String uri;
+    private URI uri;
     @NotNull(message = "IP-адрес пользователя, осуществившего запрос, отсутствует.")
     private String ip;
-    //@NotNull(message = "Дата и время, когда был совершен запрос к эндпоинту, отсутствуют.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private String timestamp;
+    private LocalDateTime timestamp;
 }
