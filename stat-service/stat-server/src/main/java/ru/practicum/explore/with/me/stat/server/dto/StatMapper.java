@@ -28,7 +28,7 @@ public class StatMapper {
     public static StatShortDto toStatShortDto(Stat stat) {
         return StatShortDto.builder()
                 .app(stat.getApp())
-                .uri(stat.getUri().toString())
+                .uri(stat.getUri())
                 .hits(stat.getHits())
                 .build();
     }
