@@ -16,13 +16,12 @@ public class StatMapper {
     }
 
     public static StatDto toStatDto(Stat stat) {
-        return StatDto.builder()
-                .id(stat.getId())
-                .app(stat.getApp())
-                .uri(stat.getUri())
-                .ip(stat.getIp())
-                .timestamp(stat.getTimestamp())
-                .build();
+        return new StatDto(
+                stat.getId(),
+                stat.getApp(),
+                stat.getUri(),
+                stat.getIp(),
+                stat.getTimestamp());
     }
 
     public static StatShortDto toStatShortDto(Stat stat) {
