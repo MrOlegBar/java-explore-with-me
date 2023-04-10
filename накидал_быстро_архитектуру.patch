@@ -1,0 +1,852 @@
+Index: docker-compose.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docker-compose.yml b/docker-compose.yml
+--- a/docker-compose.yml	
++++ b/docker-compose.yml	
+@@ -1,15 +1,47 @@
+ version: '3.1'
+ services:
+   stats-server:
++    build: stats/stats-server
++    image: ewm-stats-server
++    container_name: ewm-stats-server
+     ports:
+       - "9090:9090"
++    depends_on:
++      - stats-db
++    environment:
++      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats
++      - SPRING_DATASOURCE_USERNAME=root
++      - SPRING_DATASOURCE_PASSWORD=root
++      - SPRING_SERVER_URL=http://ewm-service:9090
+ 
+   stats-db:
+     image: postgres:14-alpine
++    container_name: postgres-ewm-stats-db
++    environment:
++      - POSTGRES_PASSWORD=root
++      - POSTGRES_USER=root
++      - POSTGRES_DB=ewm-stats
+ 
+   ewm-service:
++    build: main-service
++    image: ewm-main-service
++    container_name: ewm-main-service
+     ports:
+       - "8080:8080"
++    depends_on:
++      - ewm-db
++      - stats-server
++    environment:
++      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
++      - SPRING_DATASOURCE_USERNAME=root
++      - SPRING_DATASOURCE_PASSWORD=root
++      - SERVICES_STATSSERVICE_URI=http://stats-server:9090
++      - JAVA_OPTS=-Djdk.httpclient.HttpClient.log=errors,requests
+ 
+   ewm-db:
+     image: postgres:14-alpine
++    container_name: postgres-ewm-main-db
++    environment:
++      - POSTGRES_PASSWORD=root
++      - POSTGRES_USER=root
++      - POSTGRES_DB=ewm
+\ No newline at end of file
+Index: stats/stats-server/src/main/java/ru/practicum/db/repository/ApplicationRepository.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/db/repository/ApplicationRepository.java b/stats/stats-server/src/main/java/ru/practicum/db/repository/ApplicationRepository.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/db/repository/ApplicationRepository.java	
+@@ -0,0 +1,10 @@
++package ru.practicum.db.repository;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.stereotype.Repository;
++import ru.practicum.db.model.entity.Application;
++
++@Repository
++public interface ApplicationRepository extends JpaRepository<Application, Long> {
++
++}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	
++++ b/pom.xml	
+@@ -3,6 +3,11 @@
+ 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+ 	<modelVersion>4.0.0</modelVersion>
+ 
++	<modules>
++		<module>main-service</module>
++		<module>stats</module>
++	</modules>
++
+ 	<parent>
+ 		<groupId>org.springframework.boot</groupId>
+ 		<artifactId>spring-boot-starter-parent</artifactId>
+@@ -184,4 +189,34 @@
+ 		</profile>
+ 	</profiles>
+ 
++	<dependencyManagement>
++		<dependencies>
++
++			<!--main-service-->
++			<dependency>
++				<groupId>main-service</groupId>
++				<artifactId>ru.practicum</artifactId>
++				<version>${project.version}</version>
++			</dependency>
++
++			<!--stats-->
++			<dependency>
++				<groupId>stats-client</groupId>
++				<artifactId>ru.practicum</artifactId>
++				<version>${project.version}</version>
++			</dependency>
++			<dependency>
++				<groupId>stats-dto</groupId>
++				<artifactId>ru.practicum</artifactId>
++				<version>${project.version}</version>
++			</dependency>
++			<dependency>
++				<groupId>stats-server</groupId>
++				<artifactId>ru.practicum</artifactId>
++				<version>${project.version}</version>
++			</dependency>
++
++		</dependencies>
++	</dependencyManagement>
++
+ </project>
+Index: main-service/pom.xml
+===================================================================
+diff --git a/main-service/pom.xml b/main-service/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/main-service/pom.xml	
+@@ -0,0 +1,50 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++    <parent>
++        <artifactId>explore-with-me</artifactId>
++        <groupId>ru.practicum</groupId>
++        <version>0.0.1-SNAPSHOT</version>
++    </parent>
++    <modelVersion>4.0.0</modelVersion>
++
++    <artifactId>main-service</artifactId>
++
++    <properties>
++        <maven.compiler.source>11</maven.compiler.source>
++        <maven.compiler.target>11</maven.compiler.target>
++        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
++    </properties>
++
++    <dependencies>
++
++        <dependency>
++            <groupId>ru.practicum</groupId>
++            <artifactId>stats-client</artifactId>
++            <version>${project.version}</version>
++        </dependency>
++
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-web</artifactId>
++        </dependency>
++
++        <dependency>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++            <version>1.7.36</version>
++        </dependency>
++
++    </dependencies>
++
++    <build>
++        <plugins>
++            <plugin>
++                <groupId>org.springframework.boot</groupId>
++                <artifactId>spring-boot-maven-plugin</artifactId>
++            </plugin>
++        </plugins>
++    </build>
++
++</project>
+\ No newline at end of file
+Index: stats/stats-server/src/main/java/ru/practicum/db/model/entity/Application.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/db/model/entity/Application.java b/stats/stats-server/src/main/java/ru/practicum/db/model/entity/Application.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/db/model/entity/Application.java	
+@@ -0,0 +1,26 @@
++package ru.practicum.db.model.entity;
++
++import ru.practicum.db.model.BaseModel;
++
++import javax.persistence.*;
++
++@Entity
++@Table(name = "apps")
++public class Application extends BaseModel<Long> {
++
++    private String name;
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    public Long getId() {
++        return id;
++    }
++
++    public String getName() {
++        return name;
++    }
++
++    public void setName(String name) {
++        this.name = name;
++    }
++}
+Index: main-service/Dockerfile
+===================================================================
+diff --git a/main-service/Dockerfile b/main-service/Dockerfile
+new file mode 100644
+--- /dev/null	
++++ b/main-service/Dockerfile	
+@@ -0,0 +1,5 @@
++FROM eclipse-temurin:11-jre-jammy
++VOLUME /tmp
++ARG JAR_FILE=target/*.jar
++COPY ${JAR_FILE} app.jar
++ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar ${0} ${@}"]
+\ No newline at end of file
+Index: stats/stats-server/src/main/resources/schema.sql
+===================================================================
+diff --git a/stats/stats-server/src/main/resources/schema.sql b/stats/stats-server/src/main/resources/schema.sql
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/resources/schema.sql	
+@@ -0,0 +1,5 @@
++CREATE TABLE IF NOT EXISTS apps (
++  id BIGINT GENERATED BY DEFAULT AS IDENTITY NOT NULL,
++  name VARCHAR(150) NOT NULL
++);
++
+Index: main-service/src/main/java/ru/practicum/pac/MainService.java
+===================================================================
+diff --git a/main-service/src/main/java/ru/practicum/pac/MainService.java b/main-service/src/main/java/ru/practicum/pac/MainService.java
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/java/ru/practicum/pac/MainService.java	
+@@ -0,0 +1,14 @@
++package ru.practicum.pac;
++
++import org.springframework.boot.SpringApplication;
++import org.springframework.boot.autoconfigure.SpringBootApplication;
++import org.springframework.context.annotation.ComponentScan;
++
++@ComponentScan(basePackages = "ru.practicum")
++@SpringBootApplication
++public class MainService {
++
++    public static void main(String[] args) {
++        SpringApplication.run(MainService.class, args);
++    }
++}
+\ No newline at end of file
+Index: main-service/src/main/resources/schema.sql
+===================================================================
+diff --git a/main-service/src/main/resources/schema.sql b/main-service/src/main/resources/schema.sql
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/resources/schema.sql	
+@@ -0,0 +1,1 @@
++--тут ваши таблицы для основного сервиса
+\ No newline at end of file
+Index: main-service/src/main/resources/application.properties
+===================================================================
+diff --git a/main-service/src/main/resources/application.properties b/main-service/src/main/resources/application.properties
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/resources/application.properties	
+@@ -0,0 +1,3 @@
++spring.application.name=ewm-main-service
++
++services.stats-service.uri=http://localhost:9090
+Index: stats/stats-client/src/main/java/ru/practicum/StatsClient.java
+===================================================================
+diff --git a/stats/stats-client/src/main/java/ru/practicum/StatsClient.java b/stats/stats-client/src/main/java/ru/practicum/StatsClient.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-client/src/main/java/ru/practicum/StatsClient.java	
+@@ -0,0 +1,60 @@
++package ru.practicum;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.http.HttpHeaders;
++import org.springframework.stereotype.Service;
++import ru.practicum.dto.EndpointHit;
++
++import javax.servlet.http.HttpServletRequest;
++import java.net.URI;
++import java.net.http.HttpClient;
++import java.net.http.HttpRequest;
++import java.net.http.HttpResponse;
++import java.time.Duration;
++
++@Service
++public class StatsClient {
++    private final Logger logger = LoggerFactory.getLogger(getClass());
++
++    private final String application;
++    private final String statsServiceUri;
++    private final ObjectMapper json;
++    private final HttpClient httpClient;
++
++    public StatsClient(@Value("${spring.application.name}") String application,
++                       @Value("${services.stats-service.uri:http://localhost:9090}") String statsServiceUri,
++                       ObjectMapper json) {
++        this.application = application;
++        this.statsServiceUri = statsServiceUri;
++        this.json = json;
++        this.httpClient = HttpClient.newBuilder()
++                .connectTimeout(Duration.ofSeconds(2))
++                .build();
++    }
++
++    public void hit() {
++        EndpointHit hit = new EndpointHit();
++        hit.setApp(application);
++
++        try {
++            HttpRequest.BodyPublisher bodyPublisher = HttpRequest
++                    .BodyPublishers
++                    .ofString(json.writeValueAsString(hit));
++
++            HttpRequest hitRequest = HttpRequest.newBuilder()
++                    .uri(URI.create(statsServiceUri + "/hit"))
++                    .POST(bodyPublisher)
++                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
++                    .header(HttpHeaders.ACCEPT, "application/json")
++                    .build();
++
++            HttpResponse<Void> response = httpClient.send(hitRequest, HttpResponse.BodyHandlers.discarding());
++            logger.info("Response from stats-service: {}", response);
++        } catch (Exception e) {
++            logger.warn("Cannot record hit", e);
++        }
++    }
++}
+Index: stats/pom.xml
+===================================================================
+diff --git a/stats/pom.xml b/stats/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/stats/pom.xml	
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++    <modelVersion>4.0.0</modelVersion>
++
++    <parent>
++        <artifactId>explore-with-me</artifactId>
++        <groupId>ru.practicum</groupId>
++        <version>0.0.1-SNAPSHOT</version>
++    </parent>
++
++    <artifactId>stats</artifactId>
++    <packaging>pom</packaging>
++
++    <modules>
++        <module>stats-server</module>
++        <module>stats-dto</module>
++        <module>stats-client</module>
++    </modules>
++
++</project>
+\ No newline at end of file
+Index: stats/stats-server/src/main/java/ru/practicum/StatsMain.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/StatsMain.java b/stats/stats-server/src/main/java/ru/practicum/StatsMain.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/StatsMain.java	
+@@ -0,0 +1,12 @@
++package ru.practicum;
++
++import org.springframework.boot.SpringApplication;
++import org.springframework.boot.autoconfigure.SpringBootApplication;
++
++@SpringBootApplication
++public class StatsMain {
++
++    public static void main(String[] args) {
++        SpringApplication.run(StatsMain.class, args);
++    }
++}
+Index: main-service/src/main/java/ru/practicum/pac/dto/SomeDto.java
+===================================================================
+diff --git a/main-service/src/main/java/ru/practicum/pac/dto/SomeDto.java b/main-service/src/main/java/ru/practicum/pac/dto/SomeDto.java
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/java/ru/practicum/pac/dto/SomeDto.java	
+@@ -0,0 +1,20 @@
++package ru.practicum.pac.dto;
++
++public class SomeDto {
++    private String someField;
++
++    public String getSomeField() {
++        return someField;
++    }
++
++    public void setSomeField(String someField) {
++        this.someField = someField;
++    }
++
++    @Override
++    public String toString() {
++        return "SomeDto{" +
++                "someField='" + someField + '\'' +
++                '}';
++    }
++}
+Index: stats/stats-server/src/main/resources/application.properties
+===================================================================
+diff --git a/stats/stats-server/src/main/resources/application.properties b/stats/stats-server/src/main/resources/application.properties
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/resources/application.properties	
+@@ -0,0 +1,26 @@
++server.port=9090
++
++# suppress inspection "UnusedProperty" for whole file
++spring.datasource.driverClassName=org.postgresql.Driver
++spring.datasource.url=jdbc:postgresql://${db.host}:${db.port}/${db.name}
++spring.datasource.username=${db.user}
++spring.datasource.password=${db.password}
++spring.sql.init.mode=always
++
++db.name=ewm-stats
++db.port=5432
++db.host=db
++db.user=root
++db.password=root
++#db.host=localhost
++#db.user=kitty
++#db.password=purrrrrr
++#---
++spring.config.activate.on-profile=local
++db.host=localhost
++#---
++spring.config.activate.on-profile=ci,test
++db.host=localhost
++db.name=ewm-stats-test
++spring.datasource.driverClassName=org.h2.Driver
++spring.datasource.url=jdbc:h2:mem:${db.name}
+\ No newline at end of file
+Index: main-service/src/main/java/ru/practicum/pac/controller/MainServiceController.java
+===================================================================
+diff --git a/main-service/src/main/java/ru/practicum/pac/controller/MainServiceController.java b/main-service/src/main/java/ru/practicum/pac/controller/MainServiceController.java
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/java/ru/practicum/pac/controller/MainServiceController.java	
+@@ -0,0 +1,30 @@
++package ru.practicum.pac.controller;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.MediaType;
++import org.springframework.http.ResponseEntity;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RestController;
++import ru.practicum.pac.dto.SomeDto;
++import ru.practicum.pac.service.MainService2;
++
++@RestController
++public class MainServiceController {
++    private final Logger logger = LoggerFactory.getLogger(getClass());
++
++    private final MainService2 mainService2;
++
++    public MainServiceController(MainService2 mainService2) {
++        this.mainService2 = mainService2;
++    }
++
++    @PostMapping(path = "/main", consumes = MediaType.APPLICATION_JSON_VALUE)
++    public ResponseEntity<Void> main(@RequestBody SomeDto dto) {
++        logger.info("get dto {}", dto);
++        mainService2.save(dto.getSomeField());
++        return new ResponseEntity<>(HttpStatus.OK);
++    }
++}
+Index: main-service/src/main/java/ru/practicum/pac/service/MainService2.java
+===================================================================
+diff --git a/main-service/src/main/java/ru/practicum/pac/service/MainService2.java b/main-service/src/main/java/ru/practicum/pac/service/MainService2.java
+new file mode 100644
+--- /dev/null	
++++ b/main-service/src/main/java/ru/practicum/pac/service/MainService2.java	
+@@ -0,0 +1,29 @@
++package ru.practicum.pac.service;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.stereotype.Service;
++import ru.practicum.StatsClient;
++
++@Service
++public class MainService2 {
++    private final Logger logger = LoggerFactory.getLogger(getClass());
++
++    private final StatsClient statsClient;
++
++    public MainService2(StatsClient statsClient) {
++        this.statsClient = statsClient;
++    }
++
++    public void save(Object object) {
++        logger.info("begin logic service");
++
++        //do something
++
++        statsClient.hit();
++
++        //do something
++
++        logger.info("end logic service");
++    }
++}
+Index: stats/stats-server/Dockerfile
+===================================================================
+diff --git a/stats/stats-server/Dockerfile b/stats/stats-server/Dockerfile
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/Dockerfile	
+@@ -0,0 +1,5 @@
++FROM eclipse-temurin:11-jre-jammy
++VOLUME /tmp
++ARG JAR_FILE=target/*.jar
++COPY ${JAR_FILE} app.jar
++ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar ${0} ${@}"]
+\ No newline at end of file
+Index: stats/stats-server/src/main/java/ru/practicum/service/StatsService.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/service/StatsService.java b/stats/stats-server/src/main/java/ru/practicum/service/StatsService.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/service/StatsService.java	
+@@ -0,0 +1,27 @@
++package ru.practicum.service;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.stereotype.Service;
++import ru.practicum.db.model.entity.Application;
++import ru.practicum.db.repository.ApplicationRepository;
++
++@Service
++public class StatsService {
++    private final Logger logger = LoggerFactory.getLogger(getClass());
++
++    private final ApplicationRepository applicationRepository;
++
++    public StatsService(ApplicationRepository applicationRepository) {
++        this.applicationRepository = applicationRepository;
++    }
++
++    public Application save(String app) {
++        Application application = new Application();
++        application.setName(app);
++        logger.info("try to save application {}", app);
++        Application applicationSave = applicationRepository.save(application);
++        logger.info("save application {}", applicationSave);
++        return applicationSave;
++    }
++}
+Index: stats/stats-server/src/main/java/ru/practicum/db/model/BaseModel.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/db/model/BaseModel.java b/stats/stats-server/src/main/java/ru/practicum/db/model/BaseModel.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/db/model/BaseModel.java	
+@@ -0,0 +1,42 @@
++package ru.practicum.db.model;
++
++public abstract class BaseModel<T> {
++
++    protected T id;
++
++    public BaseModel() {
++    }
++
++    public T getId() {
++        return this.id;
++    }
++
++    public void setId(T id) {
++        this.id = id;
++    }
++
++    public boolean equals(Object o) {
++        if (o == null) {
++            return false;
++        } else if (this == o) {
++            return true;
++        } else if (!(o instanceof BaseModel)) {
++            return false;
++        } else {
++            BaseModel that = (BaseModel) o;
++            if (!that.getClass().equals(this.getClass())) {
++                return false;
++            } else {
++                return this.id != null && this.id.equals(that.id);
++            }
++        }
++    }
++
++    public int hashCode() {
++        return this.id != null ? this.id.hashCode() : 0;
++    }
++
++    public String toString() {
++        return this.getClass().getSimpleName() + "{id=" + this.id + '}';
++    }
++}
+Index: stats/stats-server/pom.xml
+===================================================================
+diff --git a/stats/stats-server/pom.xml b/stats/stats-server/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/pom.xml	
+@@ -0,0 +1,68 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++    <parent>
++        <artifactId>stats</artifactId>
++        <groupId>ru.practicum</groupId>
++        <version>0.0.1-SNAPSHOT</version>
++        <relativePath>../pom.xml</relativePath>
++    </parent>
++    <modelVersion>4.0.0</modelVersion>
++
++    <artifactId>stats-server</artifactId>
++
++    <properties>
++        <maven.compiler.source>11</maven.compiler.source>
++        <maven.compiler.target>11</maven.compiler.target>
++        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
++    </properties>
++
++    <dependencies>
++
++        <dependency>
++            <groupId>ru.practicum</groupId>
++            <artifactId>stats-dto</artifactId>
++            <version>${project.version}</version>
++        </dependency>
++
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-data-jpa</artifactId>
++        </dependency>
++
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-web</artifactId>
++        </dependency>
++
++        <dependency>
++            <groupId>com.h2database</groupId>
++            <artifactId>h2</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++
++        <dependency>
++            <groupId>org.postgresql</groupId>
++            <artifactId>postgresql</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++
++        <dependency>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++            <version>1.7.36</version>
++        </dependency>
++
++    </dependencies>
++
++    <build>
++        <plugins>
++            <plugin>
++                <groupId>org.springframework.boot</groupId>
++                <artifactId>spring-boot-maven-plugin</artifactId>
++            </plugin>
++        </plugins>
++    </build>
++
++</project>
+\ No newline at end of file
+Index: stats/stats-server/src/main/java/ru/practicum/controller/StatsController.java
+===================================================================
+diff --git a/stats/stats-server/src/main/java/ru/practicum/controller/StatsController.java b/stats/stats-server/src/main/java/ru/practicum/controller/StatsController.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-server/src/main/java/ru/practicum/controller/StatsController.java	
+@@ -0,0 +1,28 @@
++package ru.practicum.controller;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RestController;
++import ru.practicum.db.model.entity.Application;
++import ru.practicum.dto.EndpointHit;
++import ru.practicum.service.StatsService;
++
++@RestController
++public class StatsController {
++    private final Logger logger = LoggerFactory.getLogger(getClass());
++
++    private final StatsService statsService;
++
++    public StatsController(StatsService statsService) {
++        this.statsService = statsService;
++    }
++
++    @PostMapping(path = "/hit")
++    public Long hit(@RequestBody EndpointHit hit) {
++        logger.info("get dto {}", hit);
++        Application save = statsService.save(hit.getApp());
++        return save.getId();
++    }
++}
+Index: stats/stats-dto/pom.xml
+===================================================================
+diff --git a/stats/stats-dto/pom.xml b/stats/stats-dto/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-dto/pom.xml	
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++    <parent>
++        <artifactId>stats</artifactId>
++        <groupId>ru.practicum</groupId>
++        <version>0.0.1-SNAPSHOT</version>
++        <relativePath>../pom.xml</relativePath>
++    </parent>
++    <modelVersion>4.0.0</modelVersion>
++
++    <artifactId>stats-dto</artifactId>
++
++    <properties>
++        <maven.compiler.source>11</maven.compiler.source>
++        <maven.compiler.target>11</maven.compiler.target>
++        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
++    </properties>
++
++</project>
+\ No newline at end of file
+Index: stats/stats-client/pom.xml
+===================================================================
+diff --git a/stats/stats-client/pom.xml b/stats/stats-client/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-client/pom.xml	
+@@ -0,0 +1,35 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0"
++         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++    <parent>
++        <artifactId>stats</artifactId>
++        <groupId>ru.practicum</groupId>
++        <version>0.0.1-SNAPSHOT</version>
++        <relativePath>../pom.xml</relativePath>
++    </parent>
++    <modelVersion>4.0.0</modelVersion>
++
++    <artifactId>stats-client</artifactId>
++
++    <properties>
++        <maven.compiler.source>11</maven.compiler.source>
++        <maven.compiler.target>11</maven.compiler.target>
++        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
++    </properties>
++
++    <dependencies>
++        <dependency>
++            <groupId>ru.practicum</groupId>
++            <artifactId>stats-dto</artifactId>
++            <version>${project.version}</version>
++        </dependency>
++
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-web</artifactId>
++            <optional>true</optional>
++        </dependency>
++    </dependencies>
++
++</project>
+\ No newline at end of file
+Index: stats/stats-dto/src/main/java/ru/practicum/dto/EndpointHit.java
+===================================================================
+diff --git a/stats/stats-dto/src/main/java/ru/practicum/dto/EndpointHit.java b/stats/stats-dto/src/main/java/ru/practicum/dto/EndpointHit.java
+new file mode 100644
+--- /dev/null	
++++ b/stats/stats-dto/src/main/java/ru/practicum/dto/EndpointHit.java	
+@@ -0,0 +1,30 @@
++package ru.practicum.dto;
++
++public class EndpointHit {
++    private Long id;        //id записи
++    private String app;     //название сервиса, для которого записывается информация
++
++    public Long getId() {
++        return id;
++    }
++
++    public void setId(Long id) {
++        this.id = id;
++    }
++
++    public String getApp() {
++        return app;
++    }
++
++    public void setApp(String app) {
++        this.app = app;
++    }
++
++    @Override
++    public String toString() {
++        return "EndpointHit{" +
++                "id=" + id +
++                ", app='" + app + '\'' +
++                '}';
++    }
++}
