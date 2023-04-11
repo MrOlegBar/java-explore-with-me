@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stat-service</artifactId>
+    <artifactId>stats-service</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>stat-server</module>
-        <module>stat-client</module>
-        <module>stat-dto</module>
+        <module>stats-server</module>
+        <module>stats-client</module>
+        <module>stats-dto</module>
     </modules>
 
     <properties>
@@ -32,7 +32,7 @@
             </dependency>
 
             <dependency>
-                <artifactId>stat-dto</artifactId>
+                <artifactId>stats-dto</artifactId>
                 <groupId>ru.practicum</groupId>
                 <version>${project.version}</version>
             </dependency>

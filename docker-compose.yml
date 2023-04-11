@@ -1,21 +1,21 @@
 version: '3.8'
 services:
   stats-server:
-    build: stat-service/stat-server
-    image: stat-server_image
-    container_name: stat-server_container
+    build: stats-service/stats-server
+    image: stats-server_image
+    container_name: stats-server_container
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stat-db:5432/stats
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer
 
   stats-db:
     image: postgres:14-alpine
-    container_name: stat-db
+    container_name: stats-db
     ports:
       - "6541:5432"
     environment:
@@ -24,26 +24,26 @@ services:
       - POSTGRES_PASSWORD=developer
 
   ewm-service:
-    build: main-service
-    image: main-service_image
-    container_name: main-service_container
+    build: ewm-service
+    image: ewm-service_image
+    container_name: ewm-service_container
     ports:
       - "8080:8080"
     depends_on:
       - stats-server
       - ewm-db
     environment:
-      - SERVICES_STAT_SERVER_URI=http://stat-server:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/main
+      - SERVICES_STAT_SERVER_URI=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer
 
   ewm-db:
     image: postgres:14-alpine
-    container_name: main-db
+    container_name: ewm-db
     ports:
       - "6542:5432"
     environment:
-      - POSTGRES_DB=main
+      - POSTGRES_DB=ewm
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer

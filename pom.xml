@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
-		<module>stat-service</module>
-		<module>main-service</module>
+		<module>stats-service</module>
+		<module>ewm-service</module>
 	</modules>
 
 	<parent>
@@ -29,23 +29,23 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<artifactId>main-service</artifactId>
+				<artifactId>ewm-service</artifactId>
 				<groupId>ru.practicum</groupId>
 				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
-				<artifactId>stat-client</artifactId>
+				<artifactId>stats-client</artifactId>
 				<groupId>ru.practicum</groupId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<artifactId>stat-dto</artifactId>
+				<artifactId>stats-dto</artifactId>
 				<groupId>ru.practicum</groupId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<artifactId>stat-server</artifactId>
+				<artifactId>stats-server</artifactId>
 				<groupId>ru.practicum</groupId>
 				<version>${project.version}</version>
 			</dependency>

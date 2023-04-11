@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>main-service</artifactId>
+    <artifactId>ewm-service</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -19,7 +19,7 @@
 
     <dependencies>
         <dependency>
-            <artifactId>stat-client</artifactId>
+            <artifactId>stats-client</artifactId>
             <groupId>ru.practicum</groupId>
         </dependency>
 
