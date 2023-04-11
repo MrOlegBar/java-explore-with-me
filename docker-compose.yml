@@ -33,7 +33,7 @@ services:
       - stat-server
       - main-db
     environment:
-      - SERVICES_STAT_SERVER_URI=http://stats-server:9090
+      - SERVICES_STAT_SERVER_URI=http://stat-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/main
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer
