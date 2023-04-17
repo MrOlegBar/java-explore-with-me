@@ -1,14 +1,13 @@
 package ru.practicum.controller;
 
-import ru.practicum.mapper.StatMapper;
-import ru.practicum.dto.StatDto;
-import ru.practicum.dto.StatShortDto;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.StatDto;
+import ru.practicum.dto.StatShortDto;
 import ru.practicum.model.Stat;
 import ru.practicum.service.StatService;
 
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StatController {
     private final StatService statService;
+    private final ModelMapper modelMapper;
 
     /**
      * Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем.
@@ -31,10 +31,10 @@ public class StatController {
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public StatDto postStats(@NonNull @RequestBody StatDto statDto) {
-        Stat statFromDto = StatMapper.toStat(statDto);
+        Stat statFromDto = modelMapper.map(statDto, Stat.class);
 
         Stat statForDto = statService.create(statFromDto);
-        return StatMapper.toStatDto(statForDto);
+        return modelMapper.map(statForDto, StatDto.class);
     }
 
     /**
@@ -52,7 +52,7 @@ public class StatController {
                                              @RequestParam(required = false, defaultValue = "false") Boolean unique) {
 
         return statService.getStats(start, end, uris, unique).stream()
-                    .map(StatMapper::toStatShortDto)
+                    .map(stat -> modelMapper.map(stat, StatShortDto.class))
                     .collect(Collectors.toSet());
     }
 }
