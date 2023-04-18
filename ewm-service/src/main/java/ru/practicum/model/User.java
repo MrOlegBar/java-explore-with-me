@@ -1,4 +1,4 @@
-package ru.practicum.users;
+package ru.practicum.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,8 +12,11 @@ import javax.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
+    @Column(name = "user_name")
     private String name;
+    @Column(name = "user_email")
     private String email;
 
     @Override

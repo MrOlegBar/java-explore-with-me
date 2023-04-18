@@ -22,7 +22,7 @@ public class StatDto {
     private URI uri;
     @NotNull(message = "IP-адрес пользователя, осуществившего запрос, отсутствует.")
     private String ip;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 }
