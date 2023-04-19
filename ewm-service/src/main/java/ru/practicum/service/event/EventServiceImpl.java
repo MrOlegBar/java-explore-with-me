@@ -2,13 +2,13 @@ package ru.practicum.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.error.NotFoundException;
-import ru.practicum.model.Event;
+import ru.practicum.model.event.Event;
 import ru.practicum.repository.EventRepository;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
     @Override
-    public Event create(Event event) {
+    public Event save(Event event) {
         return eventRepository.save(event);
     }
 
@@ -31,12 +31,22 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Collection<Event> getEventsByUserId(Long userId, int from, int size) {
+        return eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from, size));
+    }
+
+    @Override
+    public Collection<Event> getEventsByCategoryId(Long catId) {
+        return eventRepository.findAllByCategory_Id(catId);
+    }
+
+    @Override
     public Collection<Event> getEvents() {
         return eventRepository.findAll();
     }
 
     @Override
-    public Optional<Event> getEventById(long eventId) {
-        return eventRepository.findById(eventId);
+    public Event getEventByUserIdAndEventId(Long userId, Long eventId) {
+        return eventRepository.findEventByInitiator_IdAndId(userId, eventId);
     }
 }

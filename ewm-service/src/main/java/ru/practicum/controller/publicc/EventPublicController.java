@@ -19,7 +19,7 @@ public class EventPublicController {
     private final StatClient statClient;
 
     @GetMapping(value = {"/events", "/events/{eventId}"})
-    public Object getUserS(@PathVariable(required = false) Long eventId, HttpServletRequest request) {
+    public Object getEventS(@PathVariable(required = false) Long eventId, HttpServletRequest request) {
         StatDto statDto = new StatDto();
         statDto.setApp("ewm-main-service");
         statDto.setUri(URI.create(request.getRequestURI()));
@@ -31,7 +31,7 @@ public class EventPublicController {
         if (eventId == null) {
             return eventService.getEvents();
         } else {
-            return eventService.getEventById(eventId);
+            return eventService.getEventByIdOrElseThrow(eventId);
         }
     }
 }

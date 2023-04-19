@@ -3,13 +3,11 @@ package ru.practicum.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.error.NotFoundException;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 
 @Service
@@ -25,9 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Collection<User> getUsers(Collection<Long> userIds, int from, int size) {
-        Pageable pageable = PageRequest.of(from, size);
-
-        return userRepository.findUsersByIdIn(userIds, pageable);
+        return userRepository.findAllByIdIn(userIds, PageRequest.of(from, size));
     }
 
     @Override
@@ -40,7 +36,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public Boolean deleteUser(long userId) throws NotFoundException {
         userRepository.deleteById(userId);
         return !userRepository.existsById(userId);

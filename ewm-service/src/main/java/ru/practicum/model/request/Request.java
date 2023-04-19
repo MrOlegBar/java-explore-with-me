@@ -1,8 +1,10 @@
-package ru.practicum.model;
+package ru.practicum.model.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.model.User;
+import ru.practicum.model.event.Event;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.model.RequestStatus;
+import ru.practicum.model.request.RequestStatus;
 
 import java.time.LocalDateTime;
 

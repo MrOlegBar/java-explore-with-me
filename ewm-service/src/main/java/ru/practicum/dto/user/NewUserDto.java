@@ -1,4 +1,4 @@
-package ru.practicum.dto;
+package ru.practicum.dto.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +12,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDto {
-    private Long id;
+public class NewUserDto {
     @NotBlank(message = "Имя пользователя отсутствует или представлено пустым символом.",
             groups = {Post.class})
     private String name;

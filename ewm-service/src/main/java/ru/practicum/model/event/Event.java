@@ -1,6 +1,9 @@
-package ru.practicum.model;
+package ru.practicum.model.event;
 
 import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.model.Category;
+import ru.practicum.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -8,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "events")
 @Getter
+@Setter
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +34,10 @@ public class Event {
     @JoinColumn(name = "event_initiator_id")
     private User initiator;
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride( name = "lat", column = @Column(name = "event_location_lat")),
+            @AttributeOverride( name = "lon", column = @Column(name = "event_location_lon")),
+    })
     private Location location;
     @Column(name = "event_paid")
     private Boolean paid;

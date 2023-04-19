@@ -11,21 +11,15 @@ import java.util.Objects;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler({NotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(RuntimeException e) {
-        return new ErrorResponse(e.getMessage());
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMethodArgumentValidation(MethodArgumentNotValidException e) {
+        return new ErrorResponse(String.valueOf(Objects.requireNonNull(e.getFieldError()).getDefaultMessage()));
     }
 
     @ExceptionHandler({java.lang.NumberFormatException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(RuntimeException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler({org.hibernate.exception.ConstraintViolationException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflict(RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -36,9 +30,15 @@ public class ErrorHandler {
                 e.getHeaderName()));
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentValidation(MethodArgumentNotValidException e) {
-        return new ErrorResponse(String.valueOf(Objects.requireNonNull(e.getFieldError()).getDefaultMessage()));
+    @ExceptionHandler({NotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(RuntimeException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler({org.hibernate.exception.ConstraintViolationException.class, ConflictException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflict(RuntimeException e) {
+        return new ErrorResponse(e.getMessage());
     }
 }
