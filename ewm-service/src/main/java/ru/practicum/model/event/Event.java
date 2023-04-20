@@ -54,4 +54,10 @@ public class Event {
     private String title;
     @Column(name = "event_views")
     private Long views;
+
+    public enum EventStatus {
+        PENDING,
+        PUBLISHED,
+        CANCELED
+    }
 }

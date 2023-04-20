@@ -41,9 +41,15 @@ public class NewEventDto {
     private Boolean paid;
     private Long participantLimit;
     private Boolean requestModeration;
+    private StateAction stateAction;
     @NotNull(message = "Заголовок события отсутствует.",
             groups = {Post.class})
     @Size(min = 20, max = 7000, message = "Количество символов в заголовке события должно быть в пределах 3-120.",
             groups = {Post.class, Patch.class})
     private String title;
+
+    public enum StateAction {
+        SEND_TO_REVIEW,
+        CANCEL_REVIEW
+    }
 }

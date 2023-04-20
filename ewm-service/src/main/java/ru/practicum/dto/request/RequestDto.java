@@ -1,11 +1,11 @@
-package ru.practicum.dto;
+package ru.practicum.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.model.request.RequestStatus;
+import ru.practicum.model.Request;
 
 import java.time.LocalDateTime;
 
@@ -19,5 +19,5 @@ public class RequestDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
-    private RequestStatus status;
+    private Request.RequestStatus status;
 }

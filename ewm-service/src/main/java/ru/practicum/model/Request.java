@@ -1,9 +1,8 @@
-package ru.practicum.model.request;
+package ru.practicum.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.model.User;
 import ru.practicum.model.event.Event;
 
 import javax.persistence.*;
@@ -30,4 +29,11 @@ public class Request {
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status")
     private RequestStatus status;
+
+    public enum RequestStatus {
+        PENDING,
+        CANCELED,
+        CONFIRMED,
+        REJECTED
+    }
 }

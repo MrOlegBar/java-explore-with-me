@@ -54,6 +54,12 @@ public class EventMapper {
                 .setPropertyConverter(categoryCategoryDtoConverter)
                 .addMappings(modelMapper -> modelMapper.skip(EventDto::setInitiator))
                 .setPropertyConverter(userUserShortDtoConverter);
+
+        modelMapper.createTypeMap(Event.class, ShortEventDto.class)
+                .addMappings(modelMapper -> modelMapper.skip(ShortEventDto::setCategory))
+                .setPropertyConverter(categoryCategoryDtoConverter)
+                .addMappings(modelMapper -> modelMapper.skip(ShortEventDto::setInitiator))
+                .setPropertyConverter(userUserShortDtoConverter);
     }
 
     public static Event toEvent(NewEventDto newEventDto) {
@@ -64,10 +70,10 @@ public class EventMapper {
         return modelMapper.map(Objects.requireNonNull(event), EventDto.class);
     }
     
-    public static List<EventDto> toEventDtoList(Collection<Event> eventCollection) {
+    public static List<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
-                .map(eventForDto -> modelMapper.map(eventForDto, EventDto.class))
+                .map(eventForDto -> modelMapper.map(eventForDto, ShortEventDto.class))
                 .collect(Collectors.toList());
     }
 }
