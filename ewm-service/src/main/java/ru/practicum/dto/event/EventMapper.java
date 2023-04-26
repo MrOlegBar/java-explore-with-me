@@ -41,6 +41,7 @@ public class EventMapper {
     }
 
     Converter<Category, CategoryDto> categoryCategoryDtoConverter = MappingContext::getDestination;
+
     Converter<User, UserShortDto> userUserShortDtoConverter = MappingContext::getDestination;
 
     @PostConstruct
@@ -69,11 +70,18 @@ public class EventMapper {
     public static EventDto toEventDto(Event event) {
         return modelMapper.map(Objects.requireNonNull(event), EventDto.class);
     }
-    
+
     public static List<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
                 .map(eventForDto -> modelMapper.map(eventForDto, ShortEventDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public static List<EventDto> toEventDtoList(Collection<Event> eventCollection) {
+        return eventCollection
+                .stream()
+                .map(eventForDto -> modelMapper.map(eventForDto, EventDto.class))
                 .collect(Collectors.toList());
     }
 }

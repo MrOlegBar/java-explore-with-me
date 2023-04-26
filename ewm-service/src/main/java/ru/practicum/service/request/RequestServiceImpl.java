@@ -24,6 +24,7 @@ public class RequestServiceImpl implements RequestService {
     public Collection<Request> getRequestsByRequesterId(Long userId) {
         return requestRepository.findAllByRequester_Id(userId);
     }
+
     @Override
     public Collection<Request> getRequestsByInitiatorId(Long userId, Long eventId) {
         return requestRepository.findAllByEvent_Initiator_IdAndEvent_Id(userId, eventId);

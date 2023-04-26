@@ -17,7 +17,7 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class _UserAdminController {
+public class UserAdminController {
     private final UserService userService;
 
     @PostMapping("/admin/users")

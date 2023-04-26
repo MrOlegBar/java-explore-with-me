@@ -20,7 +20,7 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class _RequestPrivateController {
+public class RequestPrivateController {
     private final RequestService requestService;
     private final UserService userService;
     private final EventService eventService;
@@ -29,11 +29,12 @@ public class _RequestPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public RequestDto postRequest(@PathVariable Long userId,
                                   @RequestParam Long eventId) {
-        Request request = new Request();
         User requester = userService.getUserByIdOrElseThrow(userId);
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
         methodParametersValidation(event, userId, eventId);
+
+        Request request = new Request();
 
         if (!event.getRequestModeration()) {
             request.setStatus(Request.RequestStatus.CONFIRMED);
@@ -47,26 +48,6 @@ public class _RequestPrivateController {
 
         Request requestForDto = requestService.save(request);
         return RequestMapper.toRequestDto(requestForDto);
-    }
-
-    private void methodParametersValidation(Event event, Long userId, Long eventId) {
-        if (event.getInitiator().getId().equals(userId)) {
-            log.debug("Инициатор события с userId = {} не может добавить запрос на участие в своём событии с " +
-                    "eventId = {}.", userId, eventId);
-            throw new ConflictException(String.format("Инициатор события с userId = %s не может добавить запрос на " +
-                    "участие в своём событии с eventId = %s.", userId, eventId));
-        }
-        if (!event.getState().equals(Event.EventStatus.PUBLISHED)) {
-            log.debug("Пользователь с userId = {} не может участвовать в неопубликованном событии с eventId = {}.",
-                    userId, eventId);
-            throw new ConflictException(String.format("Пользователь с userId = %s не может участвовать в " +
-                    "неопубликованном событии с eventId = %s.", userId, eventId));
-        }
-        if (event.getParticipantLimit() == 0L) {
-            log.debug("У события с eventId = {} достигнут лимит запросов на участие.", eventId);
-            throw new ConflictException(String.format("У события с eventId = %s достигнут лимит запросов на участие.",
-                    eventId));
-        }
     }
 
     @GetMapping("/users/{userId}/requests")
@@ -91,6 +72,26 @@ public class _RequestPrivateController {
             log.debug("Запрос с requestId = {} не доступен пользователю с userId = {}.", requestId, userId);
             throw new NotFoundException(String.format("Запрос с requestId = %s не доступен пользователю с userId = %s.",
                     requestId, userId));
+        }
+    }
+
+    private void methodParametersValidation(Event event, Long userId, Long eventId) {
+        if (event.getInitiator().getId().equals(userId)) {
+            log.debug("Инициатор события с userId = {} не может добавить запрос на участие в своём событии с " +
+                    "eventId = {}.", userId, eventId);
+            throw new ConflictException(String.format("Инициатор события с userId = %s не может добавить запрос на " +
+                    "участие в своём событии с eventId = %s.", userId, eventId));
+        }
+        if (!event.getState().equals(Event.EventStatus.PUBLISHED)) {
+            log.debug("Пользователь с userId = {} не может участвовать в неопубликованном событии с eventId = {}.",
+                    userId, eventId);
+            throw new ConflictException(String.format("Пользователь с userId = %s не может участвовать в " +
+                    "неопубликованном событии с eventId = %s.", userId, eventId));
+        }
+        if (event.getParticipantLimit() == 0L) {
+            log.debug("У события с eventId = {} достигнут лимит запросов на участие.", eventId);
+            throw new ConflictException(String.format("У события с eventId = %s достигнут лимит запросов на участие.",
+                    eventId));
         }
     }
 }

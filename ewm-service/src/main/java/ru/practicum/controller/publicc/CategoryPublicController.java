@@ -15,7 +15,7 @@ import java.util.Collection;
 
 @RestController
 @RequiredArgsConstructor
-public class _CategoryPublicController {
+public class CategoryPublicController {
     private final CategoryService categoryService;
 
     @GetMapping("/categories/{catId}")

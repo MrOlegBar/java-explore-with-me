@@ -30,7 +30,7 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class _EventPrivateController {
+public class EventPrivateController {
     private final EventService eventService;
     private final UserService userService;
     private final CategoryService categoryService;
@@ -53,13 +53,15 @@ public class _EventPrivateController {
     public Collection<ShortEventDto> getEvents(@PathVariable Long userId,
                                                @RequestParam(required = false, defaultValue = "0") int from,
                                                @RequestParam(required = false, defaultValue = "10") int size) {
+        userService.getUserByIdOrElseThrow(userId);
+
         Collection<Event> eventCollectionForDto = eventService.getEventsByUserId(userId, from, size);
         return EventMapper.toShortEventDtoList(eventCollectionForDto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
     public EventDto getEvent(@PathVariable Long userId,
-                                          @PathVariable Long eventId) throws NotFoundException {
+                             @PathVariable Long eventId) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
         eventService.getEventByIdOrElseThrow(eventId);
 
@@ -108,7 +110,7 @@ public class _EventPrivateController {
 
             if (event.getParticipantLimit() > (event.getConfirmedRequests())) {
 
-                for(Long id : newRequestStatusDto.getRequestIds()) {
+                for (Long id : newRequestStatusDto.getRequestIds()) {
 
                     Request request = requestService.getRequestByIdOrElseThrow(id);
 
