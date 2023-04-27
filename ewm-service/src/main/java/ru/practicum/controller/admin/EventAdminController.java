@@ -1,13 +1,16 @@
 package ru.practicum.controller.admin;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.constraintGroup.Patch;
 import ru.practicum.dto.event.EventDto;
 import ru.practicum.dto.event.EventMapper;
-import ru.practicum.model.Category;
+import ru.practicum.dto.event.NewEventDto;
+import ru.practicum.error.ConflictException;
+import ru.practicum.error.NotFoundException;
 import ru.practicum.model.event.Event;
 import ru.practicum.service.event.EventService;
 
@@ -16,13 +19,14 @@ import java.util.Collection;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class EventAdminController {
     private final EventService eventService;
 
     @GetMapping("/admin/events")
     public Collection<EventDto> getEvents(@RequestParam(required = false) Collection<Long> users,
                                           @RequestParam(required = false) Collection<Event.EventStatus> states,
-                                          @RequestParam(required = false) Collection<Category> categories,
+                                          @RequestParam(required = false) Collection<Long> categories,
                                           @RequestParam(required = false)
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                           @RequestParam(required = false)
@@ -30,8 +34,28 @@ public class EventAdminController {
                                           @RequestParam(required = false, defaultValue = "0") int from,
                                           @RequestParam(required = false, defaultValue = "10") int size) {
 
-        Collection<Event> eventCollectionForDto = eventService.getEventsByFilter(users, states, categories, rangeStart,
+        Collection<Event> eventCollectionForDto = eventService.getEventsByAdminFilter(users, states, categories, rangeStart,
                 rangeEnd, from, size);
         return EventMapper.toEventDtoList(eventCollectionForDto);
+    }
+
+    @PatchMapping("/admin/events/{eventId}")
+    public EventDto patchEvent(@PathVariable Long eventId,
+                               @Validated({Patch.class}) @RequestBody NewEventDto newEventDto) throws NotFoundException {
+
+        Event event = eventService.getEventByIdOrElseThrow(eventId);
+
+        if (newEventDto.getStateAction().equals(NewEventDto.StateAction.PUBLISH_EVENT)
+                && event.getState().equals(Event.EventStatus.PENDING)) {
+
+            eventService.patchEvent(newEventDto, event);
+
+            Event eventForDto = eventService.save(event);
+            return EventMapper.toEventDto(eventForDto);
+        } else {
+            log.debug("Событие с eventId = {} не в состоянии ожидания.", eventId);
+            throw new ConflictException(String.format("Событие с eventId = %s не в состоянии ожидания.",
+                    eventId));
+        }
     }
 }

@@ -16,7 +16,6 @@ import ru.practicum.dto.request.RequestMapper;
 import ru.practicum.dto.request.RequestStatusDto;
 import ru.practicum.error.ConflictException;
 import ru.practicum.error.NotFoundException;
-import ru.practicum.model.Category;
 import ru.practicum.model.Request;
 import ru.practicum.model.User;
 import ru.practicum.model.event.Event;
@@ -77,7 +76,7 @@ public class EventPrivateController {
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
         if (event.getState().equals(Event.EventStatus.CANCELED) || event.getState().equals(Event.EventStatus.PENDING)) {
-            updateEventByNewEventDto(newEventDto, event);
+            eventService.patchEvent(newEventDto, event);
 
             Event eventForDto = eventService.save(event);
             return EventMapper.toEventDto(eventForDto);
@@ -139,41 +138,5 @@ public class EventPrivateController {
         Collection<Request> requestCollectionForDto = requestService.getRequestsByCollectionId(userId, eventId,
                 newRequestStatusDto.getRequestIds());
         return RequestMapper.toRequestStatusDto(requestCollectionForDto);
-    }
-
-    private void updateEventByNewEventDto(NewEventDto newEventDto, Event event) {
-        if (newEventDto.getAnnotation() != null) {
-            event.setAnnotation(newEventDto.getAnnotation());
-        }
-        if (newEventDto.getCategory() != null || newEventDto.getCategory() != 0L) {
-            Category category = categoryService.getCategoryByIdOrElseThrow(newEventDto.getCategory());
-            event.setCategory(category);
-        }
-        if (newEventDto.getDescription() != null) {
-            event.setDescription(newEventDto.getDescription());
-        }
-        if (newEventDto.getEventDate() != null) {
-            event.setEventDate(newEventDto.getEventDate());
-        }
-        if (newEventDto.getLocation() != null) {
-            event.setLocation(newEventDto.getLocation());
-        }
-        if (newEventDto.getPaid() != null) {
-            event.setPaid(newEventDto.getPaid());
-        }
-        if (newEventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(newEventDto.getParticipantLimit());
-        }
-        if (newEventDto.getRequestModeration() != null) {
-            event.setRequestModeration(newEventDto.getRequestModeration());
-        }
-        if (newEventDto.getTitle() != null) {
-            event.setTitle(newEventDto.getTitle());
-        }
-        if (newEventDto.getStateAction() == NewEventDto.StateAction.SEND_TO_REVIEW) {
-            event.setState(Event.EventStatus.PENDING);
-        } else {
-            event.setState(Event.EventStatus.PENDING);
-        }
     }
 }

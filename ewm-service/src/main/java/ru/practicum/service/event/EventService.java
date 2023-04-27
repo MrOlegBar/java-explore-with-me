@@ -1,7 +1,7 @@
 package ru.practicum.service.event;
 
+import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.error.NotFoundException;
-import ru.practicum.model.Category;
 import ru.practicum.model.event.Event;
 
 import java.time.LocalDateTime;
@@ -20,7 +20,13 @@ public interface EventService {
 
     Event getEventByUserIdAndEventId(Long userId, Long eventId);
 
-    Collection<Event> getEventsByFilter(Collection<Long> users, Collection<Event.EventStatus> states,
-                                        Collection<Category> categories, LocalDateTime rangeStart,
-                                        LocalDateTime rangeEnd, int from, int size);
+    Collection<Event> getEventsByAdminFilter(Collection<Long> users, Collection<Event.EventStatus> states,
+                                             Collection<Long> categories, LocalDateTime rangeStart,
+                                             LocalDateTime rangeEnd, int from, int size);
+
+    void patchEvent(NewEventDto newEventDto, Event event);
+
+    Collection<Event> getEventsByPublicFilter(String text, Collection<Long> categories, Boolean paid,
+                                              LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
+                                              Event.EventSort sort, int from, int size);
 }

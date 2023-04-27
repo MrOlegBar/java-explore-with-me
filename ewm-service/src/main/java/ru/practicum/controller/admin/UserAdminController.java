@@ -24,7 +24,7 @@ public class UserAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto postUser(@Validated({Post.class}) @RequestBody NewUserDto newUserDto) {
         User userFromDto = UserMapper.toUser(newUserDto);
-        User userForDto = userService.create(userFromDto);
+        User userForDto = userService.save(userFromDto);
         return UserMapper.toUserDto(userForDto);
     }
 

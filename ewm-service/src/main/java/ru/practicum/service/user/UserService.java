@@ -6,7 +6,7 @@ import ru.practicum.model.User;
 import java.util.Collection;
 
 public interface UserService {
-    User create(User user);
+    User save(User user);
 
     Collection<User> getUsers(Collection<Long> ids, int from, int size);
 

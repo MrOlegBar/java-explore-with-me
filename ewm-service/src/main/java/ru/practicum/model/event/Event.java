@@ -3,10 +3,12 @@ package ru.practicum.model.event;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.model.Category;
+import ru.practicum.model.Compilation;
 import ru.practicum.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -54,10 +56,13 @@ public class Event {
     private String title;
     @Column(name = "event_views")
     private Long views;
+    @ManyToMany(mappedBy = "events")
+    private Set<Compilation> compilations;
 
     public enum EventStatus {
-        PENDING,
-        PUBLISHED,
-        CANCELED
+        PENDING, PUBLISHED, CANCELED
+    }
+    public enum EventSort {
+        EVENT_DATE, VIEWS
     }
 }

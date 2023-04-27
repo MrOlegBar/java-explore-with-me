@@ -14,7 +14,6 @@ import ru.practicum.repository.CategoryRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -32,11 +31,21 @@ public class EventMapper {
     Converter<NewEventDto, Event> toNewEventDtoEventConverter() {
         return mappingContext -> {
             NewEventDto newEventDto = mappingContext.getSource();
-
             Event event = mappingContext.getDestination();
+
             event.setCategory(categoryRepository.findById(newEventDto.getCategory()).orElse(null));
 
-            return mappingContext.getDestination();
+            NewEventDto.StateAction stateAction = mappingContext.getSource().getStateAction();
+
+            if (stateAction.equals(NewEventDto.StateAction.PUBLISH_EVENT)) {
+                event.setState(Event.EventStatus.PUBLISHED);
+            }
+            if (stateAction.equals(NewEventDto.StateAction.REJECT_EVENT)) {
+                event.setState(Event.EventStatus.CANCELED);
+            }
+
+            event.setState(Event.EventStatus.PENDING);
+            return event;
         };
     }
 
@@ -48,6 +57,7 @@ public class EventMapper {
     public void setupMapper() {
         modelMapper.createTypeMap(NewEventDto.class, Event.class)
                 .addMappings(modelMapper -> modelMapper.skip(Event::setCategory))
+                .addMappings(modelMapper -> modelMapper.skip(Event::setState))
                 .setPostConverter(toNewEventDtoEventConverter());
 
         modelMapper.createTypeMap(Event.class, EventDto.class)
@@ -71,14 +81,14 @@ public class EventMapper {
         return modelMapper.map(Objects.requireNonNull(event), EventDto.class);
     }
 
-    public static List<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
+    public static Collection<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
                 .map(eventForDto -> modelMapper.map(eventForDto, ShortEventDto.class))
                 .collect(Collectors.toList());
     }
 
-    public static List<EventDto> toEventDtoList(Collection<Event> eventCollection) {
+    public static Collection<EventDto> toEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
                 .map(eventForDto -> modelMapper.map(eventForDto, EventDto.class))
