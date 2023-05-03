@@ -12,6 +12,7 @@ import ru.practicum.dto.user.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.service.user.UserService;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -25,6 +26,7 @@ public class UserAdminController {
     public UserDto postUser(@Validated({Post.class}) @RequestBody NewUserDto newUserDto) {
         User userFromDto = UserMapper.toUser(newUserDto);
         User userForDto = userService.save(userFromDto);
+
         return UserMapper.toUserDto(userForDto);
     }
 
@@ -38,7 +40,7 @@ public class UserAdminController {
 
     @DeleteMapping("/admin/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public boolean deleteUser(@PathVariable Long userId) {
+    public boolean deleteUser(@PathVariable @NotNull Long userId) {
         userService.getUserByIdOrElseThrow(userId);
 
         return userService.deleteUser(userId);

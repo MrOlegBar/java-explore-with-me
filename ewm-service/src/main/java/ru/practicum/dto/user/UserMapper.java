@@ -30,7 +30,7 @@ public class UserMapper {
     public static List<UserDto> toUserDtoList(Collection<User> userCollection) {
         return userCollection
                 .stream()
-                .map(userForDto -> modelMapper.map(userForDto, UserDto.class))
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 }

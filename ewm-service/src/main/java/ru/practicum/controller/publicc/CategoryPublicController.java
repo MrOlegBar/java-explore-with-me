@@ -11,6 +11,7 @@ import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Category;
 import ru.practicum.service.category.CategoryService;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -19,7 +20,7 @@ public class CategoryPublicController {
     private final CategoryService categoryService;
 
     @GetMapping("/categories/{catId}")
-    public CategoryDto getCategory(@PathVariable Long catId) throws NotFoundException {
+    public CategoryDto getCategory(@PathVariable @NotNull Long catId) throws NotFoundException {
         Category categoryForDto = categoryService.getCategoryByIdOrElseThrow(catId);
 
         return CategoryMapper.toCategoryDto(categoryForDto);

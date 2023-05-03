@@ -30,7 +30,7 @@ public class CategoryMapper {
     public static List<CategoryDto> toCategoryDtoList(Collection<Category> categoryCollection) {
         return categoryCollection
                 .stream()
-                .map(categoryForDto -> modelMapper.map(categoryForDto, CategoryDto.class))
+                .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
     }
 }

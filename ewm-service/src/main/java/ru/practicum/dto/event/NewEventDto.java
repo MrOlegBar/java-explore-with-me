@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.constraintGroup.Patch;
 import ru.practicum.constraintGroup.Post;
 import ru.practicum.model.event.Location;
@@ -32,7 +31,7 @@ public class NewEventDto {
     private String description;
     @NotNull(message = "Дата и время на которые намечено событие отсутствует.",
             groups = {Post.class})
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull(message = "Широта и долгота места проведения события отсутствуют.",

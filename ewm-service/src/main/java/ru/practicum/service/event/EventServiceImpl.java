@@ -81,7 +81,7 @@ public class EventServiceImpl implements EventService {
         if (newEventDto.getAnnotation() != null) {
             event.setAnnotation(newEventDto.getAnnotation());
         }
-        if (newEventDto.getCategory() != null || newEventDto.getCategory() != 0L) {
+        if (newEventDto.getCategory() != null) {
             Category category = categoryService.getCategoryByIdOrElseThrow(newEventDto.getCategory());
             event.setCategory(category);
         }
@@ -106,10 +106,13 @@ public class EventServiceImpl implements EventService {
         if (newEventDto.getTitle() != null) {
             event.setTitle(newEventDto.getTitle());
         }
-        if (newEventDto.getStateAction() == NewEventDto.StateAction.SEND_TO_REVIEW) {
+        if (newEventDto.getStateAction() != null && newEventDto.getStateAction() == NewEventDto.StateAction.SEND_TO_REVIEW) {
             event.setState(Event.EventStatus.PENDING);
-        } else {
-            event.setState(Event.EventStatus.PENDING);
+        } else if (newEventDto.getStateAction() != null && newEventDto.getStateAction() == NewEventDto.StateAction.PUBLISH_EVENT) {
+            event.setState(Event.EventStatus.PUBLISHED);
+        } else if (newEventDto.getStateAction() != null && (newEventDto.getStateAction() == NewEventDto.StateAction.REJECT_EVENT
+                || newEventDto.getStateAction() == NewEventDto.StateAction.CANCEL_REVIEW)) {
+            event.setState(Event.EventStatus.CANCELED);
         }
     }
 
@@ -134,12 +137,12 @@ public class EventServiceImpl implements EventService {
                     .filter(event -> event.getParticipantLimit() > (event.getConfirmedRequests()))
                     .collect(Collectors.toList());
         }
-        if (sort.equals(Event.EventSort.EVENT_DATE)) {
+        if (sort != null && sort.equals(Event.EventSort.EVENT_DATE)) {
             events = events.stream()
                     .sorted(Comparator.comparing(Event::getEventDate))
                     .collect(Collectors.toList());
         }
-        if (sort.equals(Event.EventSort.VIEWS)) {
+        if (sort != null && sort.equals(Event.EventSort.VIEWS)) {
             events = events.stream()
                     .sorted(Comparator.comparing(Event::getViews))
                     .collect(Collectors.toList());

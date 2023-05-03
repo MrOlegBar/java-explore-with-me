@@ -15,6 +15,7 @@ import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.RequestService;
 import ru.practicum.service.user.UserService;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -27,10 +28,17 @@ public class RequestPrivateController {
 
     @PostMapping("/users/{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
-    public RequestDto postRequest(@PathVariable Long userId,
-                                  @RequestParam Long eventId) {
+    public RequestDto postRequest(@PathVariable @NotNull Long userId,
+                                  @RequestParam @NotNull Long eventId) {
         User requester = userService.getUserByIdOrElseThrow(userId);
-        Event event = eventService.getEventByIdOrElseThrow(eventId);
+        Event event;
+        try {
+            event = eventService.getEventByIdOrElseThrow(eventId);
+        } catch (NotFoundException e) {
+            log.debug("Не возможно выполнить запрос к мероприятию с eventId = {}.", eventId);
+            throw new ConflictException(String.format("Не возможно выполнить запрос к мероприятию с eventId = %s.",
+                    eventId));
+        }
 
         methodParametersValidation(event, userId, eventId);
 
@@ -51,7 +59,7 @@ public class RequestPrivateController {
     }
 
     @GetMapping("/users/{userId}/requests")
-    public Collection<RequestDto> getRequests(@PathVariable Long userId) throws NotFoundException {
+    public Collection<RequestDto> getRequests(@PathVariable @NotNull Long userId) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
 
         Collection<Request> requestCollectionForDto = requestService.getRequestsByRequesterId(userId);
@@ -59,8 +67,8 @@ public class RequestPrivateController {
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
-    public RequestDto patchRequest(@PathVariable Long userId,
-                               @PathVariable Long requestId) throws NotFoundException {
+    public RequestDto patchRequest(@PathVariable @NotNull Long userId,
+                               @PathVariable @NotNull Long requestId) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
         Request request = requestService.getRequestByIdOrElseThrow(requestId);
 

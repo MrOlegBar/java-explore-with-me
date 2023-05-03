@@ -3,6 +3,7 @@ package ru.practicum.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.model.event.Event;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class Request {
     @JoinColumn(name = "request_requester_id")
     private User requester;
     @Column(name = "request_created")
+    @CreationTimestamp
     private LocalDateTime created;
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status")

@@ -2,6 +2,7 @@ package ru.practicum.model.event;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.model.Category;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.User;
@@ -27,6 +28,7 @@ public class Event {
     @Column(name = "event_confirmed_requests")
     private Long confirmedRequests;
     @Column(name = "event_created_on")
+    @CreationTimestamp
     private LocalDateTime createdOn;
     @Column(name = "event_description")
     private String description;
@@ -55,13 +57,14 @@ public class Event {
     @Column(name = "event_title")
     private String title;
     @Column(name = "event_views")
-    private Long views;
+    private Long views = 0L;
     @ManyToMany(mappedBy = "events")
     private Set<Compilation> compilations;
 
     public enum EventStatus {
         PENDING, PUBLISHED, CANCELED
     }
+
     public enum EventSort {
         EVENT_DATE, VIEWS
     }

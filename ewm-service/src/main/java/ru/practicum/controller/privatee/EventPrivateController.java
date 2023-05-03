@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.constraintGroup.Patch;
+import ru.practicum.constraintGroup.Post;
 import ru.practicum.dto.event.EventDto;
 import ru.practicum.dto.event.EventMapper;
 import ru.practicum.dto.event.NewEventDto;
@@ -19,11 +20,11 @@ import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Request;
 import ru.practicum.model.User;
 import ru.practicum.model.event.Event;
-import ru.practicum.service.category.CategoryService;
 import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.RequestService;
 import ru.practicum.service.user.UserService;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -32,13 +33,12 @@ import java.util.Collection;
 public class EventPrivateController {
     private final EventService eventService;
     private final UserService userService;
-    private final CategoryService categoryService;
     private final RequestService requestService;
 
     @PostMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDto postEvent(@PathVariable Long userId,
-                              @RequestBody NewEventDto newEventDto) {
+    public EventDto postEvent(@PathVariable @NotNull Long userId,
+                              @Validated({Post.class}) @RequestBody NewEventDto newEventDto) {
         User initiator = userService.getUserByIdOrElseThrow(userId);
 
         Event eventFromDto = EventMapper.toEvent(newEventDto);
@@ -49,7 +49,7 @@ public class EventPrivateController {
     }
 
     @GetMapping("/users/{userId}/events")
-    public Collection<ShortEventDto> getEvents(@PathVariable Long userId,
+    public Collection<ShortEventDto> getEvents(@PathVariable @NotNull Long userId,
                                                @RequestParam(required = false, defaultValue = "0") int from,
                                                @RequestParam(required = false, defaultValue = "10") int size) {
         userService.getUserByIdOrElseThrow(userId);
@@ -59,8 +59,8 @@ public class EventPrivateController {
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
-    public EventDto getEvent(@PathVariable Long userId,
-                             @PathVariable Long eventId) throws NotFoundException {
+    public EventDto getEvent(@PathVariable @NotNull Long userId,
+                             @PathVariable @NotNull Long eventId) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
         eventService.getEventByIdOrElseThrow(eventId);
 
@@ -69,8 +69,8 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public EventDto patchEvent(@PathVariable Long userId,
-                               @PathVariable Long eventId,
+    public EventDto patchEvent(@PathVariable @NotNull Long userId,
+                               @PathVariable @NotNull Long eventId,
                                @Validated({Patch.class}) @RequestBody NewEventDto newEventDto) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
         Event event = eventService.getEventByIdOrElseThrow(eventId);
@@ -88,8 +88,8 @@ public class EventPrivateController {
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
-    public Collection<RequestDto> getRequests(@PathVariable Long userId,
-                                              @PathVariable Long eventId) throws NotFoundException {
+    public Collection<RequestDto> getRequests(@PathVariable @NotNull Long userId,
+                                              @PathVariable @NotNull Long eventId) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
         eventService.getEventByIdOrElseThrow(eventId);
 
@@ -98,8 +98,8 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
-    public RequestStatusDto patchEventRequestStatus(@PathVariable Long userId,
-                                                    @PathVariable Long eventId,
+    public RequestStatusDto patchEventRequestStatus(@PathVariable @NotNull Long userId,
+                                                    @PathVariable @NotNull Long eventId,
                                                     @Validated({Patch.class}) @RequestBody
                                                     NewRequestStatusDto newRequestStatusDto) throws NotFoundException {
         userService.getUserByIdOrElseThrow(userId);
@@ -107,7 +107,8 @@ public class EventPrivateController {
 
         if (event.getParticipantLimit() != 0L || event.getRequestModeration()) {
 
-            if (event.getParticipantLimit() > (event.getConfirmedRequests())) {
+            if ((event.getConfirmedRequests() == null && event.getParticipantLimit() != null) ||
+                    (event.getParticipantLimit() > event.getConfirmedRequests())) {
 
                 for (Long id : newRequestStatusDto.getRequestIds()) {
 

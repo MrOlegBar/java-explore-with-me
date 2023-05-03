@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.error.ConflictException;
 import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Category;
 import ru.practicum.repository.CategoryRepository;
-import ru.practicum.service.event.EventService;
 
 import java.util.Collection;
 
@@ -16,7 +14,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
-    private final EventService eventService;
     private final CategoryRepository categoryRepository;
 
     @Override
@@ -40,13 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Boolean deleteCategory(long catId) throws NotFoundException {
-        if (eventService.getEventsByCategoryId(catId).isEmpty()) {
-            categoryRepository.deleteById(catId);
-        } else {
-            log.debug("Категория события с catId = {} используется событыями.", catId);
-            throw new ConflictException(String.format("Категория события с catId = %s используется событыями.",
-                    catId));
-        }
+        categoryRepository.deleteById(catId);
 
         return !categoryRepository.existsById(catId);
     }

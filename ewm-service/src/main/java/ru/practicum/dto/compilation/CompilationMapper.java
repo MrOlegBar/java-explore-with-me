@@ -1,14 +1,13 @@
 package ru.practicum.dto.compilation;
 
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.practicum.dto.event.EventMapper;
 import ru.practicum.model.Compilation;
 
-import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class CompilationMapper {
@@ -19,7 +18,7 @@ public class CompilationMapper {
         modelMapper = new ModelMapper();
     }
 
-    Converter<Compilation, CompilationDto> toNewCompilationDtoCompilationConverter() {
+    /*Converter<Compilation, CompilationDto> toNewCompilationDtoCompilationConverter() {
         return mappingContext -> {
             Compilation compilation = mappingContext.getSource();
             CompilationDto compilationDto = mappingContext.getDestination();
@@ -27,14 +26,14 @@ public class CompilationMapper {
             compilationDto.setEvents(EventMapper.toShortEventDtoList(compilation.getEvents()));
             return compilationDto;
         };
-    }
+    }*/
 
-    @PostConstruct
+    /*@PostConstruct
     public void setupMapper() {
         modelMapper.createTypeMap(Compilation.class, CompilationDto.class)
                 .addMappings(modelMapper -> modelMapper.skip(CompilationDto::setEvents))
                 .setPostConverter(toNewCompilationDtoCompilationConverter());
-    }
+    }*/
 
     public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
         return modelMapper.map(Objects.requireNonNull(newCompilationDto), Compilation.class);
@@ -42,5 +41,12 @@ public class CompilationMapper {
 
     public static CompilationDto toCompilationDto(Compilation compilation) {
         return modelMapper.map(Objects.requireNonNull(compilation), CompilationDto.class);
+    }
+
+    public static Collection<CompilationDto> toCompilationDtoList(Collection<Compilation> compilationCollection) {
+        return compilationCollection
+                .stream()
+                .map(CompilationMapper::toCompilationDto)
+                .collect(Collectors.toList());
     }
 }

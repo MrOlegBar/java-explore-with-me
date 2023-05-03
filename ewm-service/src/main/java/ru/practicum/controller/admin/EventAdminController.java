@@ -14,7 +14,9 @@ import ru.practicum.error.NotFoundException;
 import ru.practicum.model.event.Event;
 import ru.practicum.service.event.EventService;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @RestController
@@ -33,6 +35,9 @@ public class EventAdminController {
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                           @RequestParam(required = false, defaultValue = "0") int from,
                                           @RequestParam(required = false, defaultValue = "10") int size) {
+        if (users == null && states == null && categories == null && rangeStart == null && rangeEnd == null) {
+            return new ArrayList<>();
+        }
 
         Collection<Event> eventCollectionForDto = eventService.getEventsByAdminFilter(users, states, categories, rangeStart,
                 rangeEnd, from, size);
@@ -40,13 +45,17 @@ public class EventAdminController {
     }
 
     @PatchMapping("/admin/events/{eventId}")
-    public EventDto patchEvent(@PathVariable Long eventId,
+    public EventDto patchEvent(@PathVariable @NotNull Long eventId,
                                @Validated({Patch.class}) @RequestBody NewEventDto newEventDto) throws NotFoundException {
 
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
-        if (newEventDto.getStateAction().equals(NewEventDto.StateAction.PUBLISH_EVENT)
-                && event.getState().equals(Event.EventStatus.PENDING)) {
+        if (event.getState().equals(Event.EventStatus.PENDING)) {
+            if (newEventDto.getEventDate() != null && newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
+                log.debug("Событие с eventId = {} не может состояться в прошлом времени.", eventId);
+                throw new ConflictException(String.format("Событие с eventId = %s не может состояться в прошлом времени.",
+                        eventId));
+            }
 
             eventService.patchEvent(newEventDto, event);
 

@@ -13,6 +13,8 @@ import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Compilation;
 import ru.practicum.service.compilation.CompilationService;
 
+import javax.validation.constraints.NotNull;
+
 @RestController
 @RequiredArgsConstructor
 public class CompilationAdminController {
@@ -29,14 +31,14 @@ public class CompilationAdminController {
 
     @DeleteMapping("/admin/compilations/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public boolean deleteCompilation(@PathVariable Long compId) {
+    public boolean deleteCompilation(@PathVariable @NotNull Long compId) {
         compilationService.getCompilationByIdOrElseThrow(compId);
 
         return compilationService.deleteCompilation(compId);
     }
 
     @PatchMapping("/admin/compilations/{compId}")
-    public CompilationDto patchCompilation(@PathVariable Long compId,
+    public CompilationDto patchCompilation(@PathVariable @NotNull Long compId,
                                @Validated({Patch.class}) @RequestBody NewCompilationDto newCompilationDto) throws NotFoundException {
 
         Compilation compilation = compilationService.getCompilationByIdOrElseThrow(compId);

@@ -18,10 +18,12 @@ import ru.practicum.model.event.Event;
 import ru.practicum.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @RestController
@@ -44,13 +46,17 @@ public class EventPublicController {
                                                @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                @RequestParam(defaultValue = "10") @Positive int size,
                                                HttpServletRequest request) throws NotFoundException {
-        StatDto statDto = new StatDto();
+        if (text == null && categories == null && paid == null && rangeStart == null && rangeEnd == null && sort == null) {
+            return new ArrayList<>();
+        }
+
+        /*StatDto statDto = new StatDto();
         statDto.setApp("ewm-main-service");
         statDto.setUri(URI.create(request.getRequestURI()));
         statDto.setIp(request.getRemoteAddr());
         statDto.setTimestamp(LocalDateTime.now());
 
-        statClient.postStat(statDto);
+        statClient.postStat(statDto);*/
 
         if (rangeEnd == null || rangeStart == null) {
             rangeEnd = null;
@@ -69,7 +75,7 @@ public class EventPublicController {
     }
 
     @GetMapping("/events/{id}")
-    public EventDto getEvent(@PathVariable("id") Long eventId,
+    public EventDto getEvent(@PathVariable("id") @NotNull Long eventId,
                              HttpServletRequest request) throws NotFoundException {
         StatDto statDto = new StatDto();
         statDto.setApp("ewm-main-service");
