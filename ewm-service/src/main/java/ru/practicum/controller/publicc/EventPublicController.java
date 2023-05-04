@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.StatClient;
-import ru.practicum.dto.StatDto;
 import ru.practicum.dto.event.EventDto;
 import ru.practicum.dto.event.EventMapper;
 import ru.practicum.dto.event.ShortEventDto;
@@ -21,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,13 +75,13 @@ public class EventPublicController {
     @GetMapping("/events/{id}")
     public EventDto getEvent(@PathVariable("id") @NotNull Long eventId,
                              HttpServletRequest request) throws NotFoundException {
-        StatDto statDto = new StatDto();
+        /*StatDto statDto = new StatDto();
         statDto.setApp("ewm-main-service");
         statDto.setUri(URI.create(request.getRequestURI()));
         statDto.setIp(request.getRemoteAddr());
         statDto.setTimestamp(LocalDateTime.now());
 
-        statClient.postStat(statDto);
+        statClient.postStat(statDto);*/
 
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 

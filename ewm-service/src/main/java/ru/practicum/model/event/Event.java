@@ -1,6 +1,8 @@
 package ru.practicum.model.event;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.model.Category;
@@ -15,6 +17,8 @@ import java.util.Set;
 @Table(name = "events")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +29,8 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "event_category_id")
     private Category category;
-    @Column(name = "event_confirmed_requests")
-    private Long confirmedRequests;
+    @Column(name = "event_confirmed_requests", columnDefinition = "integer default 0")
+    private Long confirmedRequests = 0L;
     @Column(name = "event_created_on")
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -45,8 +49,8 @@ public class Event {
     private Location location;
     @Column(name = "event_paid")
     private Boolean paid;
-    @Column(name = "event_participant_limit")
-    private Long participantLimit;
+    @Column(name = "event_participant_limit", columnDefinition = "integer default 0")
+    private Long participantLimit = 0L;
     @Column(name = "event_published_on")
     private LocalDateTime publishedOn;
     @Column(name = "event_request_moderation")
@@ -67,5 +71,17 @@ public class Event {
 
     public enum EventSort {
         EVENT_DATE, VIEWS
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event)) return false;
+        return id != null && id.equals(((Event) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

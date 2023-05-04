@@ -31,7 +31,6 @@ public class NewEventDto {
     private String description;
     @NotNull(message = "Дата и время на которые намечено событие отсутствует.",
             groups = {Post.class})
-    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull(message = "Широта и долгота места проведения события отсутствуют.",
@@ -43,7 +42,7 @@ public class NewEventDto {
     private StateAction stateAction;
     @NotNull(message = "Заголовок события отсутствует.",
             groups = {Post.class})
-    @Size(min = 20, max = 7000, message = "Количество символов в заголовке события должно быть в пределах 3-120.",
+    @Size(min = 3, max = 120, message = "Количество символов в заголовке события должно быть в пределах 3-120.",
             groups = {Post.class, Patch.class})
     private String title;
 

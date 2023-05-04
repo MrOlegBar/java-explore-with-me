@@ -1,6 +1,5 @@
 package ru.practicum.controller;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,7 +29,7 @@ public class StatController {
      */
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public StatDto postStats(@NonNull @RequestBody StatDto statDto) {
+    public StatDto postStats(@RequestBody StatDto statDto) {
         Stat statFromDto = modelMapper.map(statDto, Stat.class);
 
         Stat statForDto = statService.create(statFromDto);
@@ -47,9 +46,9 @@ public class StatController {
      */
     @GetMapping("/stats")
     public Collection<StatShortDto> getStats(@RequestParam
-                                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                                 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                              @RequestParam
-                                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                              @RequestParam(required = false) Collection<URI> uris,
                                              @RequestParam(required = false, defaultValue = "false") Boolean unique) {
 

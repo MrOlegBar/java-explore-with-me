@@ -44,7 +44,10 @@ public class RequestPrivateController {
 
         Request request = new Request();
 
-        if (!event.getRequestModeration()) {
+        if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
+            log.debug("Событие с eventId = {} уже набрало участников.", eventId);
+            throw new ConflictException(String.format("Событие с eventId = %s уже набрало участников.", eventId));
+        } else if (!event.getRequestModeration()) {
             request.setStatus(Request.RequestStatus.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1L);
         } else {

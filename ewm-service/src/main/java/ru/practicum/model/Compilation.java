@@ -1,6 +1,8 @@
 package ru.practicum.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.model.event.Event;
 
@@ -11,6 +13,8 @@ import java.util.Set;
 @Table(name = "compilations")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Compilation {
     @Id
     @Column(name = "compilation_id")
@@ -21,8 +25,20 @@ public class Compilation {
     @Column(name = "compilation_title")
     private String title;
     @ManyToMany
-    @JoinTable(name = "events_compilations",
+    @JoinTable(name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> events;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Compilation)) return false;
+        return id != null && id.equals(((Compilation) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

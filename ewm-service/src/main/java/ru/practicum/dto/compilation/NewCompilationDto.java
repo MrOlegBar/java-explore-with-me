@@ -10,9 +10,9 @@ import java.util.Collection;
 @Getter
 @Setter
 public class NewCompilationDto {
-    private Collection<Long> events;
     private Boolean pinned;
     @NotBlank(message = "Заголовок подборки отсутствует или представлен пустым символом.",
             groups = {Post.class})
     private String title;
+    private Collection<Long> events;
 }

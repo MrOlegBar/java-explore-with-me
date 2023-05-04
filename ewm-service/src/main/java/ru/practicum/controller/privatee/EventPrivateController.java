@@ -25,6 +25,7 @@ import ru.practicum.service.request.RequestService;
 import ru.practicum.service.user.UserService;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @RestController
@@ -40,6 +41,11 @@ public class EventPrivateController {
     public EventDto postEvent(@PathVariable @NotNull Long userId,
                               @Validated({Post.class}) @RequestBody NewEventDto newEventDto) {
         User initiator = userService.getUserByIdOrElseThrow(userId);
+
+        if (newEventDto.getEventDate() != null && newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
+            log.debug("Дата события не может быть в прошлом времени.");
+            throw new ConflictException("Дата события не может быть в прошлом времени.");
+        }
 
         Event eventFromDto = EventMapper.toEvent(newEventDto);
         eventFromDto.setInitiator(initiator);
@@ -75,6 +81,12 @@ public class EventPrivateController {
         userService.getUserByIdOrElseThrow(userId);
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
+        if (newEventDto.getEventDate() != null && newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
+            log.debug("Дата события с eventId = {} не может быть в прошлом времени.", eventId);
+            throw new ConflictException(String.format("Дата события с eventId = %s не может состояться в прошлом времени.",
+                    eventId));
+        }
+
         if (event.getState().equals(Event.EventStatus.CANCELED) || event.getState().equals(Event.EventStatus.PENDING)) {
             eventService.patchEvent(newEventDto, event);
 
@@ -107,7 +119,7 @@ public class EventPrivateController {
 
         if (event.getParticipantLimit() != 0L || event.getRequestModeration()) {
 
-            if ((event.getConfirmedRequests() == null && event.getParticipantLimit() != null) ||
+            if ((event.getConfirmedRequests() == 0L && event.getParticipantLimit() != 0L) ||
                     (event.getParticipantLimit() > event.getConfirmedRequests())) {
 
                 for (Long id : newRequestStatusDto.getRequestIds()) {
@@ -117,6 +129,10 @@ public class EventPrivateController {
                     if (request.getStatus().equals(Request.RequestStatus.PENDING)) {
 
                         request.setStatus(newRequestStatusDto.getStatus());
+                        if (request.getStatus().equals(Request.RequestStatus.CONFIRMED)) {
+                            event.setConfirmedRequests(event.getConfirmedRequests() + 1L);
+                            request.setEvent(event);
+                        }
                         requestService.save(request);
                     } else {
                         log.debug("Статус можно изменить только у заявок, находящихся в состоянии {}.",

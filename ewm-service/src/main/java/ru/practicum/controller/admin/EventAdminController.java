@@ -52,8 +52,8 @@ public class EventAdminController {
 
         if (event.getState().equals(Event.EventStatus.PENDING)) {
             if (newEventDto.getEventDate() != null && newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
-                log.debug("Событие с eventId = {} не может состояться в прошлом времени.", eventId);
-                throw new ConflictException(String.format("Событие с eventId = %s не может состояться в прошлом времени.",
+                log.debug("Дата события с eventId = {} не может быть в прошлом времени.", eventId);
+                throw new ConflictException(String.format("Дата события с eventId = %s не может состояться в прошлом времени.",
                         eventId));
             }
 
