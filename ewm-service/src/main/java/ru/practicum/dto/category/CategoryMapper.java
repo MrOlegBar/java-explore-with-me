@@ -12,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class CategoryMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     public CategoryMapper() {
-        modelMapper = new ModelMapper();
     }
 
     public static Category toCategory(NewCategoryDto newCategoryDto) {

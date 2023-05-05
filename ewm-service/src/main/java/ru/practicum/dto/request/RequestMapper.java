@@ -12,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class RequestMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     public RequestMapper() {
-        modelMapper = new ModelMapper();
     }
 
     @PostConstruct

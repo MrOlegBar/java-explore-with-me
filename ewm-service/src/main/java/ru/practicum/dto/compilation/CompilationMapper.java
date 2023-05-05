@@ -15,12 +15,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class CompilationMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
     private static EventRepository eventRepository;
 
     @Autowired
     public CompilationMapper(EventRepository eventRepository) {
-        modelMapper = new ModelMapper();
         CompilationMapper.eventRepository = eventRepository;
     }
 

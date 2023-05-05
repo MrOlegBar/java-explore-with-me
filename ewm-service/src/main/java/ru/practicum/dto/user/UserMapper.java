@@ -12,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     public UserMapper() {
-        modelMapper = new ModelMapper();
     }
 
     public static User toUser(NewUserDto newUserDto) {

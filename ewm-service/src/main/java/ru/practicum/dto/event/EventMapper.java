@@ -14,13 +14,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class EventMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
     private final CategoryRepository categoryRepository;
 
     @Autowired
     public EventMapper(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        modelMapper = new ModelMapper();
     }
 
     Converter<NewEventDto, Event> toNewEventDtoEventConverter() {

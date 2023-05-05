@@ -13,11 +13,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class StatMapper {
-    private static ModelMapper modelMapper;
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     public StatMapper() {
-        modelMapper = new ModelMapper();
     }
 
     public static Stat toStat(StatDto statDto) {
