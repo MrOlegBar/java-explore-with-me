@@ -17,11 +17,16 @@ import java.time.LocalDateTime;
 public class Stat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "stat_id")
     private Long id;
+    @Column(name = "stat_app")
     private String app;
+    @Column(name = "stat_uri")
     private URI uri;
+    @Column(name = "stat_ip")
     private String ip;
     @CreationTimestamp
+    @Column(name = "stat_timestamp")
     private LocalDateTime timestamp;
     @Transient
     private Long hits;

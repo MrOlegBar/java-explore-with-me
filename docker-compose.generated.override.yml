@@ -1,0 +1,6 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.8"
+services:
+  stats-server:
+    ports:
+    - "8080:8080"
