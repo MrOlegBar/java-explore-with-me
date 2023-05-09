@@ -24,14 +24,15 @@ import javax.validation.constraints.NotNull;
 public class CategoryAdminController {
     private final CategoryService categoryService;
     private final EventService eventService;
+    private final CategoryMapper categoryMapper;
 
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto postCategory(@Validated({Post.class}) @RequestBody NewCategoryDto newCategoryDto) {
-        Category categoryFromDto = CategoryMapper.toCategory(newCategoryDto);
+        Category categoryFromDto = categoryMapper.toCategory(newCategoryDto);
 
         Category categoryForDto = categoryService.save(categoryFromDto);
-        return CategoryMapper.toCategoryDto(categoryForDto);
+        return categoryMapper.toCategoryDto(categoryForDto);
     }
 
     @DeleteMapping("/admin/categories/{catId}")
@@ -55,6 +56,6 @@ public class CategoryAdminController {
         category.setName(newCategoryDto.getName());
 
         Category categoryForDto = categoryService.save(category);
-        return CategoryMapper.toCategoryDto(categoryForDto);
+        return categoryMapper.toCategoryDto(categoryForDto);
     }
 }

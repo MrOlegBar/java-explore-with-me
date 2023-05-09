@@ -1,8 +1,8 @@
 package ru.practicum.dto.event;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.model.event.Event;
 import ru.practicum.repository.CategoryRepository;
@@ -13,14 +13,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class EventMapper {
-    private static final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
-
-    @Autowired
-    public EventMapper(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     Converter<NewEventDto, Event> toNewEventDtoEventConverter() {
         return mappingContext -> {
@@ -51,29 +47,29 @@ public class EventMapper {
                 .setPostConverter(toNewEventDtoEventConverter());
     }
 
-    public static Event toEvent(NewEventDto newEventDto) {
+    public Event toEvent(NewEventDto newEventDto) {
         return modelMapper.map(Objects.requireNonNull(newEventDto), Event.class);
     }
 
-    public static EventDto toEventDto(Event event) {
+    public EventDto toEventDto(Event event) {
         return modelMapper.map(Objects.requireNonNull(event), EventDto.class);
     }
 
-    public static ShortEventDto toShortEventDto(Event event) {
+    public ShortEventDto toShortEventDto(Event event) {
         return modelMapper.map(Objects.requireNonNull(event), ShortEventDto.class);
     }
 
-    public static Collection<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
+    public Collection<ShortEventDto> toShortEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
-                .map(EventMapper::toShortEventDto)
+                .map(this::toShortEventDto)
                 .collect(Collectors.toList());
     }
 
-    public static Collection<EventDto> toEventDtoList(Collection<Event> eventCollection) {
+    public Collection<EventDto> toEventDtoList(Collection<Event> eventCollection) {
         return eventCollection
                 .stream()
-                .map(EventMapper::toEventDto)
+                .map(this::toEventDto)
                 .collect(Collectors.toList());
     }
 }

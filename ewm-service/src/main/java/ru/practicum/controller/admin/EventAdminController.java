@@ -24,6 +24,7 @@ import java.util.Collection;
 @Slf4j
 public class EventAdminController {
     private final EventService eventService;
+    private final EventMapper eventMapper;
 
     @GetMapping("/admin/events")
     public Collection<EventDto> getEvents(@RequestParam(required = false) Collection<Long> users,
@@ -41,7 +42,7 @@ public class EventAdminController {
 
         Collection<Event> eventCollectionForDto = eventService.getEventsByAdminFilter(users, states, categories, rangeStart,
                 rangeEnd, from, size);
-        return EventMapper.toEventDtoList(eventCollectionForDto);
+        return eventMapper.toEventDtoList(eventCollectionForDto);
     }
 
     @PatchMapping("/admin/events/{eventId}")
@@ -60,7 +61,7 @@ public class EventAdminController {
             eventService.patchEvent(newEventDto, event);
 
             Event eventForDto = eventService.save(event);
-            return EventMapper.toEventDto(eventForDto);
+            return eventMapper.toEventDto(eventForDto);
         } else {
             log.debug("Событие с eventId = {} не в состоянии ожидания.", eventId);
             throw new ConflictException(String.format("Событие с eventId = %s не в состоянии ожидания.",

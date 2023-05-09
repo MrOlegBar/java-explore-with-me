@@ -18,6 +18,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class StatController {
     private final StatService statService;
+    private final StatMapper statMapper;
 
     /**
      * Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем.
@@ -28,9 +29,9 @@ public class StatController {
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public StatDto postStats(@RequestBody StatDto statDto) {
-        Stat statFromDto = StatMapper.toStat(statDto);
+        Stat statFromDto = statMapper.toStat(statDto);
         Stat statForDto = statService.create(statFromDto);
-        return StatMapper.toStatDto(statForDto);
+        return statMapper.toStatDto(statForDto);
     }
 
     /**
@@ -50,6 +51,6 @@ public class StatController {
                                              @RequestParam(required = false, defaultValue = "false") Boolean unique) {
 
         Collection<Stat> statCollectionForDto = statService.getStats(start, end, uris, unique);
-        return StatMapper.toStatShortDtoList(statCollectionForDto);
+        return statMapper.toStatShortDtoList(statCollectionForDto);
     }
 }

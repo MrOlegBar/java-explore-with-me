@@ -31,6 +31,7 @@ import java.util.Collection;
 @Slf4j
 public class EventPublicController {
     private final EventService eventService;
+    private final EventMapper eventMapper;
     private final StatClient statClient;
 
     @GetMapping("/events")
@@ -71,7 +72,7 @@ public class EventPublicController {
             eventService.save(event);
         }
 
-        return EventMapper.toShortEventDtoList(eventCollectionForDto);
+        return eventMapper.toShortEventDtoList(eventCollectionForDto);
     }
 
     @GetMapping("/events/{id}")
@@ -90,7 +91,7 @@ public class EventPublicController {
         if (event.getState().equals(Event.EventStatus.PUBLISHED)) {
             event.setViews(event.getViews() + 1L);
             Event eventForDto = eventService.save(event);
-            return EventMapper.toEventDto(eventForDto);
+            return eventMapper.toEventDto(eventForDto);
         } else {
             log.debug("Событие с eventId = {} не найдено.", eventId);
             throw new ConflictException(String.format("Событие с eventId = %s не найдено.",

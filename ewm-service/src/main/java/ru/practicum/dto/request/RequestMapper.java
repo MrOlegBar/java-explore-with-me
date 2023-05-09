@@ -1,7 +1,7 @@
 package ru.practicum.dto.request;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.model.Request;
 
@@ -11,12 +11,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class RequestMapper {
-    private static final ModelMapper modelMapper = new ModelMapper();
-
-    @Autowired
-    public RequestMapper() {
-    }
+    private final ModelMapper modelMapper;
 
     @PostConstruct
     public void setupMapper() {
@@ -25,18 +22,18 @@ public class RequestMapper {
                 .addMapping(request -> request.getEvent().getId(), RequestDto::setEvent);
     }
 
-    public static RequestDto toRequestDto(Request request) {
+    public RequestDto toRequestDto(Request request) {
         return modelMapper.map(Objects.requireNonNull(request), RequestDto.class);
     }
 
-    public static Collection<RequestDto> toRequestDtoList(Collection<Request> requestCollection) {
+    public Collection<RequestDto> toRequestDtoList(Collection<Request> requestCollection) {
         return requestCollection
                 .stream()
-                .map(RequestMapper::toRequestDto)
+                .map(this::toRequestDto)
                 .collect(Collectors.toList());
     }
 
-    public static RequestStatusDto toRequestStatusDto(Collection<Request> requestCollection) {
+    public RequestStatusDto toRequestStatusDto(Collection<Request> requestCollection) {
         RequestStatusDto requestStatusDto = new RequestStatusDto();
 
         Collection<Request> confirmedRequests = requestCollection.stream()

@@ -35,6 +35,8 @@ public class EventPrivateController {
     private final EventService eventService;
     private final UserService userService;
     private final RequestService requestService;
+    private final RequestMapper requestMapper;
+    private final EventMapper eventMapper;
 
     @PostMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
@@ -47,11 +49,11 @@ public class EventPrivateController {
             throw new ConflictException("Дата события не может быть в прошлом времени.");
         }
 
-        Event eventFromDto = EventMapper.toEvent(newEventDto);
+        Event eventFromDto = eventMapper.toEvent(newEventDto);
         eventFromDto.setInitiator(initiator);
 
         Event eventForDto = eventService.save(eventFromDto);
-        return EventMapper.toEventDto(eventForDto);
+        return eventMapper.toEventDto(eventForDto);
     }
 
     @GetMapping("/users/{userId}/events")
@@ -61,7 +63,7 @@ public class EventPrivateController {
         userService.getUserByIdOrElseThrow(userId);
 
         Collection<Event> eventCollectionForDto = eventService.getEventsByUserId(userId, from, size);
-        return EventMapper.toShortEventDtoList(eventCollectionForDto);
+        return eventMapper.toShortEventDtoList(eventCollectionForDto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
@@ -71,7 +73,7 @@ public class EventPrivateController {
         eventService.getEventByIdOrElseThrow(eventId);
 
         Event eventForDto = eventService.getEventByUserIdAndEventId(userId, eventId);
-        return EventMapper.toEventDto(eventForDto);
+        return eventMapper.toEventDto(eventForDto);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
@@ -91,7 +93,7 @@ public class EventPrivateController {
             eventService.patchEvent(newEventDto, event);
 
             Event eventForDto = eventService.save(event);
-            return EventMapper.toEventDto(eventForDto);
+            return eventMapper.toEventDto(eventForDto);
         } else {
             log.debug("Событие с eventId = {} не отклонено и не в состоянии ожидания.", eventId);
             throw new ConflictException(String.format("Событие с eventId = %s не отклонено и не в состоянии ожидания.",
@@ -106,7 +108,7 @@ public class EventPrivateController {
         eventService.getEventByIdOrElseThrow(eventId);
 
         Collection<Request> requestCollectionForDto = requestService.getRequestsByInitiatorId(userId, eventId);
-        return RequestMapper.toRequestDtoList(requestCollectionForDto);
+        return requestMapper.toRequestDtoList(requestCollectionForDto);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
@@ -144,7 +146,7 @@ public class EventPrivateController {
 
                 Collection<Request> requestCollectionForDto = requestService.getRequestsByCollectionId(userId, eventId,
                         newRequestStatusDto.getRequestIds());
-                return RequestMapper.toRequestStatusDto(requestCollectionForDto);
+                return requestMapper.toRequestStatusDto(requestCollectionForDto);
             } else {
                 log.debug("Достигнут лимит по заявкам на событие с eventId = {}.", eventId);
                 throw new ConflictException(String.format("Достигнут лимит по заявкам на событие с eventId = %s.",
@@ -154,6 +156,6 @@ public class EventPrivateController {
 
         Collection<Request> requestCollectionForDto = requestService.getRequestsByCollectionId(userId, eventId,
                 newRequestStatusDto.getRequestIds());
-        return RequestMapper.toRequestStatusDto(requestCollectionForDto);
+        return requestMapper.toRequestStatusDto(requestCollectionForDto);
     }
 }

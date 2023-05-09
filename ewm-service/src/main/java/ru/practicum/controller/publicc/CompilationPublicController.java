@@ -17,19 +17,20 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class CompilationPublicController {
     private final CompilationService compilationService;
+    private final CompilationMapper compilationMapper;
 
     @GetMapping("/compilations")
     public Collection<CompilationDto> getCompilations(@RequestParam(required = false) Boolean pinned,
                                                       @RequestParam(required = false, defaultValue = "0") int from,
                                                       @RequestParam(required = false, defaultValue = "10") int size) {
         Collection<Compilation> compilationCollectionForDto = compilationService.getCompilations(pinned, from, size);
-        return CompilationMapper.toCompilationDtoList(compilationCollectionForDto);
+        return compilationMapper.toCompilationDtoList(compilationCollectionForDto);
     }
 
     @GetMapping("/compilations/{compId}")
     public CompilationDto getCompilation(@PathVariable @NotNull Long compId) {
 
         Compilation compilationForDto = compilationService.getCompilationByIdOrElseThrow(compId);
-        return CompilationMapper.toCompilationDto(compilationForDto);
+        return compilationMapper.toCompilationDto(compilationForDto);
     }
 }

@@ -1,7 +1,7 @@
 package ru.practicum.dto.compilation;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.event.Event;
@@ -14,27 +14,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class CompilationMapper {
-    private static final ModelMapper modelMapper = new ModelMapper();
-    private static EventRepository eventRepository;
+    private final ModelMapper modelMapper;
+    private final EventRepository eventRepository;
 
-    @Autowired
-    public CompilationMapper(EventRepository eventRepository) {
-        CompilationMapper.eventRepository = eventRepository;
-    }
-
-    public static CompilationDto toCompilationDto(Compilation compilation) {
+    public CompilationDto toCompilationDto(Compilation compilation) {
         return modelMapper.map(Objects.requireNonNull(compilation), CompilationDto.class);
     }
 
-    public static Collection<CompilationDto> toCompilationDtoList(Collection<Compilation> compilationCollection) {
+    public Collection<CompilationDto> toCompilationDtoList(Collection<Compilation> compilationCollection) {
         return compilationCollection
                 .stream()
-                .map(CompilationMapper::toCompilationDto)
+                .map(this::toCompilationDto)
                 .collect(Collectors.toList());
     }
 
-    public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
+    public Compilation toCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = modelMapper.map(Objects.requireNonNull(newCompilationDto), Compilation.class);
         Set<Event> events = new HashSet<>();
 

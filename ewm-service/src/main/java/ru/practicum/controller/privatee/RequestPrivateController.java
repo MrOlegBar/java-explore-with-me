@@ -23,6 +23,7 @@ import java.util.Collection;
 @Slf4j
 public class RequestPrivateController {
     private final RequestService requestService;
+    private final RequestMapper requestMapper;
     private final UserService userService;
     private final EventService eventService;
 
@@ -58,7 +59,7 @@ public class RequestPrivateController {
         request.setEvent(event);
 
         Request requestForDto = requestService.save(request);
-        return RequestMapper.toRequestDto(requestForDto);
+        return requestMapper.toRequestDto(requestForDto);
     }
 
     @GetMapping("/users/{userId}/requests")
@@ -66,7 +67,7 @@ public class RequestPrivateController {
         userService.getUserByIdOrElseThrow(userId);
 
         Collection<Request> requestCollectionForDto = requestService.getRequestsByRequesterId(userId);
-        return RequestMapper.toRequestDtoList(requestCollectionForDto);
+        return requestMapper.toRequestDtoList(requestCollectionForDto);
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
@@ -78,7 +79,7 @@ public class RequestPrivateController {
         if (request.getRequester().getId().equals(userId)) {
             request.setStatus(Request.RequestStatus.CANCELED);
             Request requestForDto = requestService.save(request);
-            return RequestMapper.toRequestDto(requestForDto);
+            return requestMapper.toRequestDto(requestForDto);
         } else {
             log.debug("Запрос с requestId = {} не доступен пользователю с userId = {}.", requestId, userId);
             throw new NotFoundException(String.format("Запрос с requestId = %s не доступен пользователю с userId = %s.",

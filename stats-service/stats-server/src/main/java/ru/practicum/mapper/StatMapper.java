@@ -1,7 +1,7 @@
 package ru.practicum.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.dto.StatDto;
 import ru.practicum.dto.StatShortDto;
@@ -12,29 +12,26 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class StatMapper {
-    private static final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
-    public StatMapper() {
-    }
-
-    public static Stat toStat(StatDto statDto) {
+    public Stat toStat(StatDto statDto) {
         return modelMapper.map(Objects.requireNonNull(statDto), Stat.class);
     }
 
-    public static StatDto toStatDto(Stat stat) {
+    public StatDto toStatDto(Stat stat) {
         return modelMapper.map(Objects.requireNonNull(stat), StatDto.class);
     }
 
-    public static StatShortDto toStatShortDto(Stat stat) {
+    public StatShortDto toStatShortDto(Stat stat) {
         return modelMapper.map(Objects.requireNonNull(stat), StatShortDto.class);
     }
 
-    public static Collection<StatShortDto> toStatShortDtoList(Collection<Stat> userCollection) {
+    public Collection<StatShortDto> toStatShortDtoList(Collection<Stat> userCollection) {
         return userCollection
                 .stream()
-                .map(StatMapper::toStatShortDto)
+                .map(this::toStatShortDto)
                 .collect(Collectors.toList());
     }
 }

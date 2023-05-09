@@ -20,14 +20,15 @@ import java.util.Collection;
 @Slf4j
 public class UserAdminController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping("/admin/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto postUser(@Validated({Post.class}) @RequestBody NewUserDto newUserDto) {
-        User userFromDto = UserMapper.toUser(newUserDto);
+        User userFromDto = userMapper.toUser(newUserDto);
         User userForDto = userService.save(userFromDto);
 
-        return UserMapper.toUserDto(userForDto);
+        return userMapper.toUserDto(userForDto);
     }
 
     @GetMapping("/admin/users")
@@ -35,7 +36,7 @@ public class UserAdminController {
                                         @RequestParam(required = false, defaultValue = "0") int from,
                                         @RequestParam(required = false, defaultValue = "10") int size) {
         Collection<User> userCollectionForDto = userService.getUsers(ids, from, size);
-        return UserMapper.toUserDtoList(userCollectionForDto);
+        return userMapper.toUserDtoList(userCollectionForDto);
     }
 
     @DeleteMapping("/admin/users/{userId}")

@@ -19,14 +19,15 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class CompilationAdminController {
     private final CompilationService compilationService;
+    private final CompilationMapper compilationMapper;
 
     @PostMapping("/admin/compilations")
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto postCompilation(@Validated({Post.class}) @RequestBody NewCompilationDto newCompilationDto) {
-        Compilation compilationFromDto = CompilationMapper.toCompilation(newCompilationDto);
+        Compilation compilationFromDto = compilationMapper.toCompilation(newCompilationDto);
 
         Compilation compilationForDto = compilationService.save(compilationFromDto);
-        return CompilationMapper.toCompilationDto(compilationForDto);
+        return compilationMapper.toCompilationDto(compilationForDto);
     }
 
     @DeleteMapping("/admin/compilations/{compId}")
@@ -46,6 +47,6 @@ public class CompilationAdminController {
         compilationService.patchCompilation(newCompilationDto, compilation);
 
         Compilation compilationForDto = compilationService.save(compilation);
-        return CompilationMapper.toCompilationDto(compilationForDto);
+        return compilationMapper.toCompilationDto(compilationForDto);
     }
 }

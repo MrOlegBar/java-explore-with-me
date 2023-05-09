@@ -18,18 +18,19 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class CategoryPublicController {
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
 
     @GetMapping("/categories/{catId}")
     public CategoryDto getCategory(@PathVariable @NotNull Long catId) throws NotFoundException {
         Category categoryForDto = categoryService.getCategoryByIdOrElseThrow(catId);
 
-        return CategoryMapper.toCategoryDto(categoryForDto);
+        return categoryMapper.toCategoryDto(categoryForDto);
     }
 
     @GetMapping("/categories")
     public Collection<CategoryDto> getCategories(@RequestParam(required = false, defaultValue = "0") int from,
                                                  @RequestParam(required = false, defaultValue = "10") int size) {
         Collection<Category> categoryCollectionForDto = categoryService.getCategories(from, size);
-        return CategoryMapper.toCategoryDtoList(categoryCollectionForDto);
+        return categoryMapper.toCategoryDtoList(categoryCollectionForDto);
     }
 }
