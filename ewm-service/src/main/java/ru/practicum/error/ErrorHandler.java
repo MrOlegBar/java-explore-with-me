@@ -12,8 +12,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -21,70 +19,35 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-
-        for (StackTraceElement error : stackTraceElements) {
-            errors.add(error.toString());
-        }
-
         String message = String.valueOf(Objects.requireNonNull(ex.getFieldError()).getDefaultMessage());
 
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message, message, errors);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message);
         return new ResponseEntity<>(apiError, apiError.getStatus());
-    }
-
-    @ExceptionHandler({java.lang.NumberFormatException.class, MethodArgumentTypeMismatchException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleBadRequest(NumberFormatException e) {
-        List<String> errors = new ArrayList<>();
-        StackTraceElement[] stackTraceElements = e.getStackTrace();
-
-        for (StackTraceElement error : stackTraceElements) {
-            errors.add(error.toString());
-        }
-
-        return new ApiError(HttpStatus.BAD_REQUEST, e.getLocalizedMessage(), e.getMessage(), errors);
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
                                                                           HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-
-        for (StackTraceElement error : stackTraceElements) {
-            errors.add(error.toString());
-        }
-
         String message = String.format("Отсутствует параметр запроса %s.", ex.getParameterName());
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message, message, errors);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message);
         return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler({java.lang.NumberFormatException.class, MethodArgumentTypeMismatchException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleBadRequest(RuntimeException e) {
+        return new ApiError(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
     }
 
     @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFound(RuntimeException e) {
-        List<String> errors = new ArrayList<>();
-        StackTraceElement[] stackTraceElements = e.getStackTrace();
-
-        for (StackTraceElement error : stackTraceElements) {
-            errors.add(error.toString());
-        }
-
-        return new ApiError(HttpStatus.NOT_FOUND, e.getLocalizedMessage(), e.getMessage(), errors);
+        return new ApiError(HttpStatus.NOT_FOUND, e.getLocalizedMessage());
     }
 
     @ExceptionHandler({org.hibernate.exception.ConstraintViolationException.class, ConflictException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflict(RuntimeException e) {
-        List<String> errors = new ArrayList<>();
-        StackTraceElement[] stackTraceElements = e.getStackTrace();
-
-        for (StackTraceElement error : stackTraceElements) {
-            errors.add(error.toString());
-        }
-
-        return new ApiError(HttpStatus.CONFLICT, e.getLocalizedMessage(), e.getMessage(), errors);
+        return new ApiError(HttpStatus.CONFLICT, e.getLocalizedMessage());
     }
 }

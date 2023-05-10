@@ -10,6 +10,8 @@ public interface UserService {
 
     Collection<User> getUsers(Collection<Long> ids, int from, int size);
 
+    Collection<User> getUsers(int from, int size);
+
     User getUserByIdOrElseThrow(long userId) throws NotFoundException;
 
     Boolean deleteUser(long userId) throws NotFoundException;

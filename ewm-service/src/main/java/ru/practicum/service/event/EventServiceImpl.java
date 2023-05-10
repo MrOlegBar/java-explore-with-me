@@ -33,6 +33,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Collection<Event> save(Collection<Event> events) {
+        return eventRepository.saveAll(events);
+    }
+
+    @Override
     public Event getEventByIdOrElseThrow(long eventId) throws NotFoundException {
         return eventRepository.findById(eventId).orElseThrow(() -> {
             log.debug("Событие с eventId = {} не найдено.", eventId);

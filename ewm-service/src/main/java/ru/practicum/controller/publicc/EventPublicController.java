@@ -47,13 +47,7 @@ public class EventPublicController {
                                                @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                @RequestParam(defaultValue = "10") @Positive int size,
                                                HttpServletRequest request) throws NotFoundException {
-        StatDto statDto = new StatDto();
-        statDto.setApp("ewm-main-service");
-        statDto.setUri(URI.create(request.getRequestURI()));
-        statDto.setIp(request.getRemoteAddr());
-        statDto.setTimestamp(LocalDateTime.now());
-
-        statClient.postStat(statDto);
+        postStat(URI.create(request.getRequestURI()), request.getRemoteAddr(), LocalDateTime.now());
 
         if (text == null && categories == null && paid == null && rangeStart == null && rangeEnd == null && sort == null) {
             return new ArrayList<>();
@@ -69,8 +63,9 @@ public class EventPublicController {
 
         for (Event event : eventCollectionForDto) {
             event.setViews(event.getViews() + 1L);
-            eventService.save(event);
         }
+
+        eventService.save(eventCollectionForDto);
 
         return eventMapper.toShortEventDtoList(eventCollectionForDto);
     }
@@ -78,13 +73,7 @@ public class EventPublicController {
     @GetMapping("/events/{id}")
     public EventDto getEvent(@PathVariable("id") @NotNull Long eventId,
                              HttpServletRequest request) throws NotFoundException {
-        StatDto statDto = new StatDto();
-        statDto.setApp("ewm-main-service");
-        statDto.setUri(URI.create(request.getRequestURI()));
-        statDto.setIp(request.getRemoteAddr());
-        statDto.setTimestamp(LocalDateTime.now());
-
-        statClient.postStat(statDto);
+        postStat(URI.create(request.getRequestURI()), request.getRemoteAddr(), LocalDateTime.now());
 
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
@@ -97,5 +86,16 @@ public class EventPublicController {
             throw new ConflictException(String.format("Событие с eventId = %s не найдено.",
                     eventId));
         }
+    }
+
+    private void postStat(URI uri, String ip, LocalDateTime localDateTime) {
+        StatDto statDto = new StatDto();
+
+        statDto.setApp("ewm-main-service");
+        statDto.setUri(uri);
+        statDto.setIp(ip);
+        statDto.setTimestamp(localDateTime);
+
+        statClient.postStat(statDto);
     }
 }

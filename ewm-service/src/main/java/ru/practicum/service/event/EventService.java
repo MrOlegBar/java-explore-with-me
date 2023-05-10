@@ -10,6 +10,8 @@ import java.util.Collection;
 public interface EventService {
     Event save(Event event);
 
+    Collection<Event> save(Collection<Event> events);
+
     Event getEventByIdOrElseThrow(long eventId) throws NotFoundException;
 
     Collection<Event> getEventsByUserId(Long userId, int from, int size);

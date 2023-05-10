@@ -27,6 +27,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Collection<User> getUsers(int from, int size) {
+        return userRepository.findAllBy(PageRequest.of(from, size));
+    }
+
+    @Override
     public User getUserByIdOrElseThrow(long userId) throws NotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> {
             log.debug("Пользователь с userId = {} не найден.", userId);

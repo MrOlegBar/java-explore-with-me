@@ -35,6 +35,11 @@ public class UserAdminController {
     public Collection<UserDto> getUsers(@RequestParam(required = false) Collection<Long> ids,
                                         @RequestParam(required = false, defaultValue = "0") int from,
                                         @RequestParam(required = false, defaultValue = "10") int size) {
+        if (ids == null) {
+            Collection<User> userCollectionForDto = userService.getUsers(from, size);
+            return userMapper.toUserDtoList(userCollectionForDto);
+        }
+
         Collection<User> userCollectionForDto = userService.getUsers(ids, from, size);
         return userMapper.toUserDtoList(userCollectionForDto);
     }
