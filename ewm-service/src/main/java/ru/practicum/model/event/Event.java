@@ -1,9 +1,6 @@
 package ru.practicum.model.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.model.Category;
 import ru.practicum.model.Comment;

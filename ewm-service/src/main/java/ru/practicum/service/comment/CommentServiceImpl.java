@@ -8,7 +8,6 @@ import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Comment;
 import ru.practicum.repository.CommentRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
@@ -39,7 +38,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Collection<Comment> getComments(Long userId, Long eventId, Pageable pageable) {
-        Collection<Comment> comments = new ArrayList<>();
+        Collection<Comment> comments;
 
         if (userId != null && eventId != null) {
             comments = commentRepository.findAllByAuthorIdAndEventId(userId, eventId, pageable);
@@ -47,6 +46,8 @@ public class CommentServiceImpl implements CommentService {
             comments = commentRepository.findAllByAuthorId(userId, pageable);
         } else if  (eventId != null) {
             comments = commentRepository.findAllByEventId(eventId, pageable);
+        } else {
+            comments = commentRepository.findAllBy(pageable);
         }
 
         return comments;

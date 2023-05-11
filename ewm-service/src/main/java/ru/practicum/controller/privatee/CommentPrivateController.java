@@ -12,7 +12,6 @@ import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.comment.CommentMapper;
 import ru.practicum.dto.comment.NewCommentDto;
 import ru.practicum.error.ConflictException;
-import ru.practicum.error.NotFoundException;
 import ru.practicum.model.Comment;
 import ru.practicum.model.User;
 import ru.practicum.model.event.Event;
@@ -45,9 +44,9 @@ public class CommentPrivateController {
         Event event = eventService.getEventByIdOrElseThrow(eventId);
 
         if (!event.getState().equals(Event.EventStatus.PUBLISHED)) {
-            log.debug("Оставлять комментарий можно только у мероприятия, находящихся в " +
+            log.debug("Оставлять комментарий можно только у мероприятий, находящихся в " +
                     "состоянии {}.", Event.EventStatus.PENDING);
-            throw new ConflictException(String.format("Оставлять комментарий можно только у мероприятия, находящихся в " +
+            throw new ConflictException(String.format("Оставлять комментарий можно только у мероприятий, находящихся в " +
                     "состоянии %s.", Event.EventStatus.PENDING));
         }
 
@@ -66,18 +65,11 @@ public class CommentPrivateController {
                                    @Validated({Patch.class}) @RequestBody NewCommentDto newCommentDto) {
         Comment comment = commentService.getCommentByIdOrElseThrow(commentId);
         userService.getUserByIdOrElseThrow(userId);
-        Event event = comment.getEvent();
 
-        if (!event.getState().equals(Event.EventStatus.PUBLISHED)) {
-            log.debug("Оставлять комментарий можно только у мероприятия, находящихся в " +
-                    "состоянии {}.", Event.EventStatus.PENDING);
-            throw new ConflictException(String.format("Оставлять комментарий можно только у мероприятия, находящихся " +
-                    "в состоянии %s.", Event.EventStatus.PENDING));
-        }
         if (!userId.equals(comment.getAuthor().getId())) {
             log.debug("Доступ к комментарию с commentId = {} не возможен для пользователя с userId = {}.", commentId,
                     userId);
-            throw new NotFoundException(String.format("Доступ к комментарию с commentId = %s не возможен для " +
+            throw new ConflictException(String.format("Доступ к комментарию с commentId = %s не возможен для " +
                             "пользователя с userId = %s.", commentId,
                     userId));
         }
@@ -99,7 +91,7 @@ public class CommentPrivateController {
         if (!userId.equals(comment.getAuthor().getId())) {
             log.debug("Доступ к комментарию с commentId = {} не возможен для пользователя с userId = {}.", commentId,
                     userId);
-            throw new NotFoundException(String.format("Доступ к комментарию с commentId = %s не возможен для пользователя с userId = %s.", commentId,
+            throw new ConflictException(String.format("Доступ к комментарию с commentId = %s не возможен для пользователя с userId = %s.", commentId,
                     userId));
         }
 
