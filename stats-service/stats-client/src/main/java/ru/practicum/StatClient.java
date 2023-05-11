@@ -10,15 +10,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.client.BaseClient;
 import ru.practicum.dto.StatDto;
 
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Map;
-
 @Service
 public class StatClient extends BaseClient {
     @Autowired
-    public StatClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -29,15 +24,5 @@ public class StatClient extends BaseClient {
 
     public ResponseEntity<Object> postStat(StatDto statDto) {
         return post(statDto);
-    }
-
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, Collection<URI> uris, Boolean unique) {
-        Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end,
-                "uris", uris,
-                "unique", unique
-        );
-        return get(parameters);
     }
 }

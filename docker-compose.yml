@@ -1,34 +1,13 @@
 version: '3.8'
 services:
-  stats-server:
-    build: stats-service/stats-server
-    image: stats-server_image
-    container_name: stats-server_container
-    ports:
-      - "9090:9090"
-    depends_on:
-      - stats-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats
-      - POSTGRES_USER=developer
-      - POSTGRES_PASSWORD=developer
-
-  stats-db:
-    image: postgres:14-alpine
-    container_name: stats-db
-    ports:
-      - "6541:5432"
-    environment:
-      - POSTGRES_DB=stats
-      - POSTGRES_USER=developer
-      - POSTGRES_PASSWORD=developer
-
   ewm-service:
+    platform: linux/amd64
     build: ewm-service
     image: ewm-service_image
     container_name: ewm-service_container
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       - stats-server
       - ewm-db
@@ -37,13 +16,46 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8081
 
   ewm-db:
+    platform: linux/amd64
     image: postgres:14-alpine
     container_name: ewm-db
+    volumes:
+      - /var/lib/postgresql/data/
     ports:
       - "6542:5432"
     environment:
       - POSTGRES_DB=ewm
+      - POSTGRES_USER=developer
+      - POSTGRES_PASSWORD=developer
+
+  stats-server:
+    platform: linux/amd64
+    build: stats-service/stats-server
+    image: stats-server_image
+    container_name: stats-server_container
+    ports:
+      - "9090:9090"
+      - "9091:9091"
+    depends_on:
+      - stats-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats
+      - SPRING_DATASOURCE_USER=developer
+      - SPRING_DATASOURCE_PASSWORD=developer
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9091
+
+  stats-db:
+    platform: linux/amd64
+    image: postgres:14-alpine
+    container_name: stats-db
+    volumes:
+      - /var/lib/postgresql/data/
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=stats
       - POSTGRES_USER=developer
       - POSTGRES_PASSWORD=developer

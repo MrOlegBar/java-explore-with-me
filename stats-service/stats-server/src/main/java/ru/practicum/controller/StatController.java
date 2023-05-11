@@ -1,26 +1,24 @@
 package ru.practicum.controller;
 
-import ru.practicum.mapper.StatMapper;
-import ru.practicum.dto.StatDto;
-import ru.practicum.dto.StatShortDto;
-
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.StatDto;
+import ru.practicum.dto.StatShortDto;
+import ru.practicum.mapper.StatMapper;
 import ru.practicum.model.Stat;
 import ru.practicum.service.StatService;
 
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 public class StatController {
     private final StatService statService;
+    private final StatMapper statMapper;
 
     /**
      * Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем.
@@ -30,11 +28,10 @@ public class StatController {
      */
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public StatDto postStats(@NonNull @RequestBody StatDto statDto) {
-        Stat statFromDto = StatMapper.toStat(statDto);
-
+    public StatDto postStats(@RequestBody StatDto statDto) {
+        Stat statFromDto = statMapper.toStat(statDto);
         Stat statForDto = statService.create(statFromDto);
-        return StatMapper.toStatDto(statForDto);
+        return statMapper.toStatDto(statForDto);
     }
 
     /**
@@ -46,13 +43,14 @@ public class StatController {
      * @return список статистики или пустой список.
      */
     @GetMapping("/stats")
-    public Collection<StatShortDto> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+    public Collection<StatShortDto> getStats(@RequestParam
+                                                 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                             @RequestParam
+                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                              @RequestParam(required = false) Collection<URI> uris,
                                              @RequestParam(required = false, defaultValue = "false") Boolean unique) {
 
-        return statService.getStats(start, end, uris, unique).stream()
-                    .map(StatMapper::toStatShortDto)
-                    .collect(Collectors.toSet());
+        Collection<Stat> statCollectionForDto = statService.getStats(start, end, uris, unique);
+        return statMapper.toStatShortDtoList(statCollectionForDto);
     }
 }
