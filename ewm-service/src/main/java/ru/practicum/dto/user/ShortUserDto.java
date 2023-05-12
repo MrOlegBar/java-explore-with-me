@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserShortDto {
+public class ShortUserDto {
     private Long id;
     @NotBlank(message = "Имя пользователя отсутствует или представлено пустым символом.",
             groups = {Post.class})

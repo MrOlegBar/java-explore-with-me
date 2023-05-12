@@ -1,16 +1,15 @@
 package ru.practicum.model.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.model.Category;
+import ru.practicum.model.Comment;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -64,6 +63,8 @@ public class Event {
     private Long views = 0L;
     @ManyToMany(mappedBy = "events")
     private Set<Compilation> compilations;
+    @OneToMany(mappedBy = "event")
+    private Set<Comment> comments = new HashSet<>();
 
     public enum EventStatus {
         PENDING, PUBLISHED, CANCELED
